@@ -1,6 +1,7 @@
 'use strict';
 
 const { app, assert } = require('egg-mock/bootstrap');
+const { getMd5 } = require('../../../app/utils');
 
 describe('test/app/controller/home.test.js', () => {
   it('should assert', () => {
@@ -12,9 +13,10 @@ describe('test/app/controller/home.test.js', () => {
   });
 
   it('should GET /', async () => {
-    const ctx = app.mockContext();
-    const result = await ctx.app.mysql.select('sys_admin');
-    console.log(result);
+    console.log(getMd5('123456'));
+    // const ctx = app.mockContext();
+    // const result = await ctx.app.mysql.select('sys_admin');
+    // console.log(result);
     // return app.httpRequest()
     //   .get('/')
     //   .expect('hi, egg')

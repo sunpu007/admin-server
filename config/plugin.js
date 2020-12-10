@@ -5,3 +5,7 @@ exports.mysql = {
   package: 'egg-mysql',
 };
 
+exports.redis = {
+  enable: true,
+  package: 'egg-redis',
+};

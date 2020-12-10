@@ -2,6 +2,9 @@
 
 'use strict';
 
+const { setResult } = require('../app/utils');
+const { RESULT_FAIL } = require('../app/constants/result');
+
 /**
  * @param {Egg.EggAppInfo} appInfo app info
  */
@@ -16,13 +19,23 @@ module.exports = appInfo => {
   config.keys = appInfo.name + '_1607609908869_9400';
 
   // add your middleware config here
-  config.middleware = [];
+  config.middleware = [ 'logHandler', 'errorHandler' ];
 
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
   };
 
+  config.contextPath = '/api';
+
+  /** 启动端口配置 */
+  config.cluster = {
+    listen: {
+      port: 7002,
+    },
+  };
+
+  /** mysql配置 */
   config.mysql = {
     client: {
       // host
@@ -35,6 +48,25 @@ module.exports = appInfo => {
       password: 'admin2020',
       // 数据库名
       database: 'admin_demo',
+    },
+  };
+
+  /** redis配置 */
+  config.redis = {
+    client: {
+      port: 6379,
+      host: 'adminDemodb',
+      password: '2020redis!',
+      db: 0,
+    },
+  };
+
+  /** 运行异常 */
+  config.onerror = {
+    all(err, ctx) {
+      // 记录一条错误日志
+      ctx.app.emit('error', err, ctx);
+      ctx.body = setResult(RESULT_FAIL, '服务器繁忙');
     },
   };
 
