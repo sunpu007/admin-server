@@ -1,6 +1,6 @@
 'use strict';
 
-const VideoError = require('../utils/VideoError');
+const GlobalError = require('../utils/GlobalError');
 const { setResult } = require('../utils');
 const { RESULT_FAIL } = require('../constants/result');
 
@@ -13,7 +13,7 @@ module.exports = () => {
       await next();
     } catch (err) {
       /** 自定义异常 */
-      if (err instanceof VideoError) {
+      if (err instanceof GlobalError) {
         ctx.body = setResult(err);
         return false;
       }

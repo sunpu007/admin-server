@@ -35,6 +35,14 @@ module.exports = appInfo => {
     },
   };
 
+  /** 跨域，仅用于本地环境 */
+  config.security = {
+    csrf: {
+      enable: false,
+    },
+    domainWhiteList: [ '*' ],
+  };
+
   /** mysql配置 */
   config.mysql = {
     client: {
