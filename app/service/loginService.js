@@ -5,7 +5,6 @@ const { ADMIN_EXPIRE_TIME, ADMIN_PREFIX } = require("../constants/redis");
 const { RESULT_FAIL } = require("../constants/result");
 const { getMd5 } = require("../utils");
 const GlobalError = require("../utils/GlobalError");
-const Jwt = require("../utils/Jwt");
 
 /**
  * 登陆相关
@@ -23,17 +22,16 @@ class LoginService extends Service {
       avatarUrl: adminInfo.avatar_url,
     }
     // 生成token
-    const token = await new Jwt({
-      adminId: adminInfo.admin_id,
-      username: adminInfo.username,
-      avatarUrl: adminInfo.avatar_url,
-    }).generateToken();
+    const token = Buffer.from(JSON.stringify(result)).toString('base64');
 
     // 获取菜单
     result.asyncRoutes = await this.generateMenu(adminInfo.admin_id);
 
     // 保存缓存
     await this.ctx.app.redis.set(ADMIN_PREFIX + token, JSON.stringify(result), 'Ex', ADMIN_EXPIRE_TIME);
+
+    // 更新登录时间
+    await this.app.mysql.update('sys_admin', { update_time: new Date() }, { where: { admin_id: adminInfo.admin_id } });
 
     return token;
   }
