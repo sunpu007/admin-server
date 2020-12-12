@@ -55,6 +55,68 @@ class SystemService extends Service {
     if (result === null) throw new GlobalError(RESULT_FAIL, '旧密码错误');
     await this.app.mysql.update('sys_admin', { password: getMd5(newPwd) }, { where: { admin_id: adminId } });
   }
+  // 获取菜单列表
+  async menuList() {
+    const routers = await this.app.mysql.select('sys_menu', { where: { status: 0 } });
+    let routersByOne = routers.filter(router => router.pid === 0).sort((a, b) => a.menu_sort - b.menu_sort);
+    const routersByTwo = routers.filter(router => router.pid !== 0);
+    const tempObj = {};
+    routersByTwo.forEach(router => {
+      if (!tempObj[router.pid] || tempObj[router.pid].length <= 0) {
+        tempObj[router.pid] = [ router ];
+      } else {
+        tempObj[router.pid].push(router);
+      }
+    });
+    routersByOne = routersByOne.map(router => {
+      router.children = tempObj[router.menu_id] ? tempObj[router.menu_id].sort((a, b) => a.menu_sort - b.menu_sort) : [];
+      return router;
+    });
+    return routersByOne;
+  }
+  // 编辑菜单
+  async editMenu(username, { menu_id, title, name, component, icon, path, redirect, pid, menu_sort }) {
+    if (menu_id) {
+      // 修改
+      await this.app.mysql.update('sys_menu', { title, name, component, icon, path, redirect, pid, menu_sort, update_by: username, update_time: new Date() },
+        { where: { menu_id } });
+    } else {
+      // 创建
+      await this.app.mysql.insert('sys_menu', { title, name, component, icon, path, redirect: redirect || '', pid, menu_sort, update_by: username,
+        update_time: new Date(), create_by: username, create_time: new Date() });
+    }
+  }
+  // 删除菜单
+  async deleteMenu(username, { menu_id }) {
+    this.app.mysql.update('sys_menu', { status: -1, update_by: username, update_time: new Date() }, { where: { menu_id } });
+  }
+  // 获取角色列表
+  async roleList() {
+    const list = await this.app.mysql.query('SELECT sys_role.*, IFNULL(GROUP_CONCAT(sys_roles_menus.menu_id), \'\') menus FROM sys_role LEFT JOIN sys_roles_menus ON (sys_roles_menus.role_id = sys_role.role_id) GROUP BY sys_role.role_id');
+    return list.map(item => {
+      item.menus = item.menus.split(',').map(Number);
+      return item;
+    });
+  }
+  // 编辑角色
+  async editRole(username, { role_id, name, description }) {
+    if (role_id) {
+      // 修改
+      await this.app.mysql.update('sys_role', { name, description, update_by: username, update_time: new Date() }, { where: { role_id } });
+    } else {
+      await this.app.mysql.insert('sys_role', { name, description, update_by: username, update_time: new Date(), create_by: username, create_time: new Date() });
+    }
+  }
+  // 编辑角色菜单
+  async editRoleMenu({ role_id, menuIds }) {
+    // 删除当前所有绑定关系
+    await this.app.mysql.delete('sys_roles_menus', { role_id });
+    // 保存更新后的绑定关系
+    const insertArr = menuIds.map(id => {
+      return { menu_id: id, role_id };
+    });
+    await this.app.mysql.insert('sys_roles_menus', insertArr);
+  }
 }
 
 module.exports = SystemService;

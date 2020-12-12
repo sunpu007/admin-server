@@ -46,6 +46,57 @@ class SystemController extends Controller {
     await ctx.service.systemService.editAdminPwd();
     ctx.body = setResult();
   }
+  /**
+   * 获取菜单列表
+   */
+  async menuList() {
+    const { ctx } = this;
+    const list = await ctx.service.systemService.menuList();
+    ctx.body = setResult({ data: { list } });
+  }
+  /**
+   * 编辑菜单
+   */
+  async editMenu() {
+    const { ctx } = this;
+    const { username } = ctx.request.headers;
+    await ctx.service.systemService.editMenu(username, ctx.request.body);
+    ctx.body = setResult();
+  }
+  /**
+   * 删除菜单
+   */
+  async deleteMenu() {
+    const { ctx } = this;
+    const { username } = ctx.request.headers;
+    await ctx.service.systemService.deleteMenu(username, ctx.request.body);
+    ctx.body = setResult();
+  }
+  /**
+   * 获取角色列表
+   */
+  async roleList() {
+    const { ctx } = this;
+    const list = await ctx.service.systemService.roleList();
+    ctx.body = setResult({ data: { list } });
+  }
+  /**
+   * 编辑角色
+   */
+  async editRole() {
+    const { ctx } = this;
+    const { username } = ctx.request.headers;
+    await ctx.service.systemService.editRole(username, ctx.request.body);
+    ctx.body = setResult();
+  }
+  /**
+   * 编辑角色菜单
+   */
+  async editRoleMenu() {
+    const { ctx } = this;
+    await ctx.service.systemService.editRoleMenu(ctx.request.body);
+    ctx.body = setResult();
+  }
 }
 
 module.exports = SystemController;
