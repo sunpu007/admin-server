@@ -10,7 +10,7 @@ class SystemService extends Service {
   async adminList() {
     return await this.app.mysql.query(`SELECT admin.admin_id adminId, admin.username username, admin.avatar_url avatarUrl, admin.status status, admin.role_id roleId,
       IFNULL(role.name, '') roleName, admin.create_by createBy, admin.create_time createTime, admin.update_by updateBy, admin.update_time updateTime FROM sys_admin admin
-      LEFT JOIN sys_role role ON admin.role_id = role.role_id ORDER BY admin.create_time DESC;`);
+      LEFT JOIN sys_role role ON admin.role_id = role.role_id ORDER BY admin.create_time ASC;`);
   }
   // 编辑/新增管理员账号
   async editAdmin(userName, { adminId, username, avatarUrl, roleId }) {
