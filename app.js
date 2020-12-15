@@ -12,9 +12,8 @@ class AppBootHook {
     await this.app.logger.info('【初始化定时任务】开始...');
     // 查询启动的定时任务
     const schedules = await this.app.mysql.select('schedule_job', { where: { status: SCHEDULE_STATUS.RUN } });
-    console.log(schedules);
     schedules.forEach(async schedule => {
-      await this.ctx.helper.generateSchedule(schedule.cron, schedule.jobName, schedule.jobHandler);
+      await this.ctx.helper.generateSchedule(schedule.job_id, schedule.cron, schedule.jobName, schedule.jobHandler);
     });
     await this.app.logger.info('【初始化定时任务】初始化定时任务: %d，结束...', schedules.length);
   }

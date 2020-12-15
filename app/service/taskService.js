@@ -56,7 +56,7 @@ class TaskService extends Service {
     if (schedule && schedule.status === SCHEDULE_STATUS.RUN) {
       // 启动状态下重置任务
       await this.ctx.helper.cancelSchedule(jobName);
-      await this.ctx.helper.generateSchedule(cron, jobName, jobHandler);
+      await this.ctx.helper.generateSchedule(job_id, cron, jobName, jobHandler);
     }
   }
   // 删除定时任务
@@ -70,7 +70,7 @@ class TaskService extends Service {
     if (schedule !== null) {
       if (status === SCHEDULE_STATUS.RUN) {
         // 启动任务
-        await this.ctx.helper.generateSchedule(schedule.cron, schedule.jobName, schedule.jobHandler);
+        await this.ctx.helper.generateSchedule(job_id, schedule.cron, schedule.jobName, schedule.jobHandler);
       } else {
         // 停止任务
         await this.ctx.helper.cancelSchedule(schedule.jobName);

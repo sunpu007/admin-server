@@ -16,13 +16,16 @@ module.exports = {
   },
   /**
    * 创建定时任务
+   * @param {*} id 任务ID
    * @param {*} cron Cron
    * @param {*} jobName 任务名
    * @param {*} jobHandler 任务方法
    */
-  async generateSchedule(cron, jobName, jobHandler) {
-    this.ctx.logger.info('[创建定时任务]，cron: %s，任务名: %s，任务方法: %s', cron, jobName, jobHandler);
-    scheduleStacks[jobName] = schedule.scheduleJob(cron, this.service.scheduleService[jobHandler].bind(this));
+  async generateSchedule(id, cron, jobName, jobHandler) {
+    this.ctx.logger.info('[创建定时任务]，任务ID: %s，cron: %s，任务名: %s，任务方法: %s', id, cron, jobName, jobHandler);
+    scheduleStacks[jobName] = schedule.scheduleJob(cron, () => {
+      this.service.scheduleService[jobHandler](id);
+    });
   },
   /**
    * 取消/停止定时任务
