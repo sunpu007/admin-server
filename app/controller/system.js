@@ -1,7 +1,7 @@
 'use strict';
 
-const { Controller } = require("egg");
-const { setResult } = require("../utils");
+const { Controller } = require('egg');
+const { setResult } = require('../utils');
 
 class SystemController extends Controller {
   /**

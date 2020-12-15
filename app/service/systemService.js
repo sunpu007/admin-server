@@ -1,9 +1,9 @@
 'use strict';
 
-const { Service } = require("egg");
-const { RESULT_FAIL } = require("../constants/result");
-const { generateAdminPwd, getMd5 } = require("../utils");
-const GlobalError = require("../utils/GlobalError");
+const { Service } = require('egg');
+const { RESULT_FAIL } = require('../constants/result');
+const { generateAdminPwd, getMd5 } = require('../utils');
+const GlobalError = require('../utils/GlobalError');
 
 class SystemService extends Service {
   // 获取管理员账号
@@ -26,7 +26,7 @@ class SystemService extends Service {
         create_by: userName,
         update_time: new Date(),
         update_by: userName,
-      })
+      });
       return pwd;
     }
     // 修改

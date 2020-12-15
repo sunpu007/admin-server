@@ -1,7 +1,7 @@
 'use strict';
 
 const { app, assert } = require('egg-mock/bootstrap');
-const { getMd5 } = require('../../../app/utils');
+// const { getMd5 } = require('../../../app/utils');
 
 describe('test/app/controller/home.test.js', () => {
   it('should assert', () => {
@@ -13,10 +13,12 @@ describe('test/app/controller/home.test.js', () => {
   });
 
   it('should GET /', async () => {
-    console.log(getMd5('123456'));
-    // const ctx = app.mockContext();
+    // console.log(getMd5('123456'));
+    const ctx = app.mockContext();
     // const result = await ctx.app.mysql.select('sys_admin');
-    // console.log(result);
+    // const result = await ctx.app.mysql.update('sys_menu', { title: '角色管理1' }, { where: { menu_id: 5 } });
+    const result = await ctx.app.mysql.get('sys_menu', { menu_id: 5 });
+    console.log(result);
     // return app.httpRequest()
     //   .get('/')
     //   .expect('hi, egg')

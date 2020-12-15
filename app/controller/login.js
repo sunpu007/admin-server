@@ -1,8 +1,8 @@
 'use strict';
 
-const { Controller } = require("egg");
-const { ADMIN_PREFIX } = require("../constants/redis");
-const { setResult } = require("../utils");
+const { Controller } = require('egg');
+const { ADMIN_PREFIX } = require('../constants/redis');
+const { setResult } = require('../utils');
 
 /**
  * 登陆相关

@@ -14,14 +14,14 @@ module.exports = app => {
   router.post(`${config.contextPath}/system/admin/pwd/reset`, checkTokenHandler, controller.system.resetAdminPwd);
   // 修改管理员密码
   router.post(`${config.contextPath}/system/admin/pwd/edit`, checkTokenHandler, controller.system.editAdminPwd);
-  /**** 菜单管理 ****/
+  /** ** 菜单管理 ****/
   // 获取菜单列表
   router.get(`${config.contextPath}/system/menu/list`, checkTokenHandler, controller.system.menuList);
   // 编辑菜单
   router.post(`${config.contextPath}/system/menu/edit`, checkTokenHandler, controller.system.editMenu);
   // 删除菜单
   router.post(`${config.contextPath}/system/menu/delete`, checkTokenHandler, controller.system.deleteMenu);
-  /**** 角色管理 ****/
+  /** ** 角色管理 ****/
   // 获取角色列表
   router.get(`${config.contextPath}/system/role/list`, checkTokenHandler, controller.system.roleList);
   // 编辑角色

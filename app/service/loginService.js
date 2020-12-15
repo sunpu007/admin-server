@@ -1,10 +1,10 @@
 'use strict';
 
-const { Service } = require("egg");
-const { ADMIN_EXPIRE_TIME, ADMIN_PREFIX } = require("../constants/redis");
-const { RESULT_FAIL } = require("../constants/result");
-const { getMd5 } = require("../utils");
-const GlobalError = require("../utils/GlobalError");
+const { Service } = require('egg');
+const { ADMIN_EXPIRE_TIME, ADMIN_PREFIX } = require('../constants/redis');
+const { RESULT_FAIL } = require('../constants/result');
+const { getMd5 } = require('../utils');
+const GlobalError = require('../utils/GlobalError');
 
 /**
  * 登陆相关
@@ -20,7 +20,7 @@ class LoginService extends Service {
       adminId: adminInfo.admin_id,
       username: adminInfo.username,
       avatarUrl: adminInfo.avatar_url,
-    }
+    };
     // 生成token
     const token = Buffer.from(JSON.stringify(result)).toString('base64');
 

@@ -1,8 +1,8 @@
 'use strict';
 
-const { ADMIN_PREFIX, ADMIN_EXPIRE_TIME } = require("../constants/redis");
-const { RESULT_LOGIN_FAIL } = require("../constants/result");
-const GlobalError = require("../utils/GlobalError");
+const { ADMIN_PREFIX, ADMIN_EXPIRE_TIME } = require('../constants/redis');
+const { RESULT_LOGIN_FAIL } = require('../constants/result');
+const GlobalError = require('../utils/GlobalError');
 
 module.exports = () => {
   return async function(ctx, next) {
@@ -21,5 +21,5 @@ module.exports = () => {
     headers.avatarUrl = adminInfo.avatarUrl;
 
     await next();
-  }
+  };
 };
