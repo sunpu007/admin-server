@@ -2,6 +2,8 @@
 
 const { Service } = require('egg');
 const { SCHEDULE_STATUS } = require('../constants');
+const { RESULT_FAIL } = require('../constants/result');
+const GlobalError = require('../utils/GlobalError');
 
 /**
  * task Service
@@ -40,7 +42,7 @@ class TaskService extends Service {
       return;
     }
     // 修改
-    await this.app.mysql.update('schedule_job', {
+    const result = await this.app.mysql.update('schedule_job', {
       cron,
       jobName,
       jobHandler,
@@ -50,24 +52,33 @@ class TaskService extends Service {
       update_time: new Date(),
     }, { where: { job_id } });
 
-    const schedule = await this.app.mysql.get('schedule_job', { job_id });
-
-    // 此处在版本允许的情况下可使用可选链操作符`?`
-    if (schedule && schedule.status === SCHEDULE_STATUS.RUN) {
-      // 启动状态下重置任务
-      await this.ctx.helper.cancelSchedule(jobName);
-      await this.ctx.helper.generateSchedule(job_id, cron, jobName, jobHandler);
+    if (result.affectedRows === 1) {
+      const schedule = await this.app.mysql.get('schedule_job', { job_id });
+      // 此处在版本允许的情况下可使用可选链操作符`?`
+      if (schedule && schedule.status === SCHEDULE_STATUS.RUN) {
+        // 启动状态下重置任务
+        await this.ctx.helper.cancelSchedule(jobName);
+        await this.ctx.helper.generateSchedule(job_id, cron, jobName, jobHandler);
+      }
     }
   }
   // 删除定时任务
   async deleteSchedule({ job_id }) {
-    await this.app.mysql.delete('schedule_job', { job_id });
+    const result = await this.app.mysql.delete('schedule_job', { job_id });
+    if (result.affectedRows === 1) {
+      const schedule = await this.app.mysql.get('schedule_job', { job_id });
+      if (schedule.status === SCHEDULE_STATUS.RUN) {
+        // 停止任务
+        await this.ctx.helper.cancelSchedule(schedule.jobName);
+      }
+    }
   }
   // 更新定时任务状态
   async updateStatusSchedule({ job_id, status }) {
-    await this.app.mysql.update('schedule_job', { status }, { where: { job_id } });
-    const schedule = await this.app.mysql.get('schedule_job', { job_id });
-    if (schedule !== null) {
+    const result = await this.app.mysql.update('schedule_job', { status }, { where: { job_id } });
+    // 判断是否更新成功
+    if (result.affectedRows === 1) {
+      const schedule = await this.app.mysql.get('schedule_job', { job_id });
       if (status === SCHEDULE_STATUS.RUN) {
         // 启动任务
         await this.ctx.helper.generateSchedule(job_id, schedule.cron, schedule.jobName, schedule.jobHandler);
@@ -80,7 +91,7 @@ class TaskService extends Service {
   // 执行任务
   async runSchedule({ job_id }) {
     const schedule = await this.app.mysql.get('schedule_job', { job_id });
-    if (schedule === null) throw new VideoError(RESULT_FAIL, '任务不存在');
+    if (schedule === null) throw new GlobalError(RESULT_FAIL, '任务不存在');
 
     // 执行任务
     this.service.scheduleService[schedule.jobHandler]();

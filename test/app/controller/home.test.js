@@ -17,7 +17,8 @@ describe('test/app/controller/home.test.js', () => {
     const ctx = app.mockContext();
     // const result = await ctx.app.mysql.select('sys_admin');
     // const result = await ctx.app.mysql.update('sys_menu', { title: '角色管理1' }, { where: { menu_id: 5 } });
-    const result = await ctx.app.mysql.get('sys_menu', { menu_id: 5 });
+    // const result = await ctx.app.mysql.get('sys_menu', { menu_id: 5 });
+    const result = await ctx.app.mysql.delete('sys_menu', { menu_id: 5 });
     console.log(result);
     // return app.httpRequest()
     //   .get('/')

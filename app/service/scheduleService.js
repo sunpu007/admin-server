@@ -1,10 +1,11 @@
 'use strict';
 
-const { Service } = require("egg");
+const { Service } = require('egg');
 
 class ScheduleService extends Service {
   /**
    * 测试处理程序
+   * @param {*} job_id 任务ID
    */
   async testHandler(job_id) {
     // 读取锁,保证一个任务同时只能有一个进程执行
