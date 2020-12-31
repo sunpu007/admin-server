@@ -75,14 +75,14 @@ class SystemService extends Service {
     return routersByOne;
   }
   // 编辑菜单
-  async editMenu(username, { menu_id, title, name, component, icon, path, redirect, pid, menu_sort }) {
+  async editMenu(username, { menu_id, title, name, component, icon, path, redirect, pid, menu_sort, hidden }) {
     if (menu_id) {
       // 修改
-      await this.app.mysql.update('sys_menu', { title, name, component, icon, path, redirect, pid, menu_sort, update_by: username, update_time: new Date() },
+      await this.app.mysql.update('sys_menu', { title, name, component, icon, path, redirect, pid, menu_sort, hidden, update_by: username, update_time: new Date() },
         { where: { menu_id } });
     } else {
       // 创建
-      await this.app.mysql.insert('sys_menu', { title, name, component, icon, path, redirect: redirect || '', pid, menu_sort, update_by: username,
+      await this.app.mysql.insert('sys_menu', { title, name, component, icon, path, redirect: redirect || '', pid, menu_sort, hidden, update_by: username,
         update_time: new Date(), create_by: username, create_time: new Date() });
     }
   }

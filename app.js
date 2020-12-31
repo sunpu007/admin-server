@@ -14,6 +14,7 @@ class AppBootHook {
     const schedules = await this.app.mysql.select('schedule_job', { where: { status: SCHEDULE_STATUS.RUN } });
     // 循环注册定时任务
     schedules.forEach(async schedule => {
+      await this.app.logger.info('【注册job】name：%s, handler: %s', schedule.jobName, schedule.jobHandler);
       await this.ctx.helper.generateSchedule(schedule.job_id, schedule.cron, schedule.jobName, schedule.jobHandler);
     });
     await this.app.logger.info('【初始化定时任务】初始化定时任务: %d，结束...', schedules.length);
@@ -21,7 +22,7 @@ class AppBootHook {
 
   async beforeClose() {
     await this.app.logger.info('【销毁定时任务】开始...');
-    const scheduleStacks = await this.ctx.helper.getScheduleStacks();
+    const scheduleStacks = await this.app.scheduleStacks();
     Reflect.ownKeys(scheduleStacks).forEach(async key => {
       await this.ctx.helper.cancelSchedule(key);
     });

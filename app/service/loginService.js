@@ -52,6 +52,7 @@ class LoginService extends Service {
           title: router.title,
           icon: router.icon,
         },
+        hidden: !!router.hidden,
       };
     });
     let routersByOne = routers.filter(router => router.pid === 0).sort((a, b) => a.menu_sort - b.menu_sort);

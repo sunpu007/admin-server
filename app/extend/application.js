@@ -1,6 +1,7 @@
 'use strict';
 
 const REDLOCK = Symbol('Application#redlock');
+const SCHEDULESTACKS = Symbol('Application#scheduleStacks');
 
 /**
  * Application扩展
@@ -21,4 +22,13 @@ module.exports = {
     }
     return this[REDLOCK];
   },
+  /**
+   * 用于存放定时任务的堆栈
+   */
+  get scheduleStacks() {
+    if (!this[SCHEDULESTACKS]) {
+      this[SCHEDULESTACKS] = {};
+    }
+    return this[SCHEDULESTACKS];
+  }
 };
