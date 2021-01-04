@@ -24,4 +24,6 @@ module.exports = app => {
       }
     });
   })(routerPath);
+
+  app.ws.route('/ws', app.controller.ws.hello);
 };
