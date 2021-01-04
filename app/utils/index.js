@@ -56,3 +56,16 @@ exports.generateAdminPwd = length => {
   }
   return pwd;
 };
+
+/**
+ * 模版字符串替换
+ * @param {*} str 模版字符串
+ * @param {*} args 替换值
+ */
+exports.formatStr = (str, ...args) => {
+  if (str === '') return '';
+  for (const i in args) {
+    str = str.replace(new RegExp('\\{' + i + '\\}', 'g'), args[i]);
+  }
+  return str;
+};

@@ -2,6 +2,8 @@
 
 const os = require('os');
 
+const { formatStr } = require('./');
+
 function cpuAverage() {
   //Initialise sum of idle and time of cores and fetch CPU info
   var totalIdle = 0, totalTick = 0;
@@ -47,4 +49,16 @@ exports.mem = async () => {
 
     resolve({ totalmem, freemem, usedmem, usageRate });
   })
+}
+
+exports.upTime = async () => {
+  const time = os.uptime();
+
+  const day = Math.floor(time / 86400);
+  const hour = Math.floor((time - day * 86400) / 3600);
+  const minute = Math.floor((time - day * 86400 - hour * 3600) / 60);
+  const second = Math.floor(time - day * 86400 - hour * 3600 - minute * 60);
+  // console.log('%d天%d时%d分%d秒', day, hour, minute, second);
+
+  return Promise.resolve(formatStr('{0}天{1}时{2}分{3}秒', day, hour, minute, second));
 }
