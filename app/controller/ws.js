@@ -20,13 +20,13 @@ class WsController extends Controller {
     //   });
     
     let useCpu = await cpu();
-    // let useMem = await mem();
-    ctx.websocket.send(JSON.stringify({ cpu: useCpu }));
+    let useMem = await mem();
+    ctx.websocket.send(JSON.stringify({ cpu: useCpu, mem: useMem }));
 
     setInterval(async () => {
       useCpu = await cpu();
-      // useMem = await mem();
-      ctx.websocket.send(JSON.stringify({ cpu: useCpu }));
+      useMem = await mem();
+      ctx.websocket.send(JSON.stringify({ cpu: useCpu, mem: useMem }));
     }, 2000);
   }
 }

@@ -40,9 +40,11 @@ exports.cpu = async () => {
 
 exports.mem = async () => {
   return new Promise((resolve) => {
-    const totalmem = os.totalmem() / 1024 / 1024;
-    const freemem = os.freemem() / 1024 / 1024;
+    const totalmem = (os.totalmem() / 1024 / 1024 / 1024).toFixed(2);
+    const freemem = (os.freemem() / 1024 / 1024 / 1024).toFixed(2);
+    const usedmem = ((os.totalmem() - os.freemem()) / 1024 / 1024 / 1024).toFixed(2);
+    const usageRate = parseInt(usedmem / totalmem * 100);
 
-    resolve({ total: totalmem, used: totalmem - freemem, available: freemem, usageRate: ((totalmem - freemem) / totalmem).toFixed(2) })
+    resolve({ totalmem, freemem, usedmem, usageRate });
   })
 }
