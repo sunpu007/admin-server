@@ -117,10 +117,10 @@ exports.disk = async () => {
   let { stdout } = await exec('df -hl /');
   stdout = stdout.split('\n')[1].split(' ').filter(item => item != '');
 
-  total = parseFloat(stdout[1]);
-  available = parseFloat(stdout[3]);
-  used = parseFloat(stdout[2]);
-  usageRate = (used / total * 100).toFixed(2);
+  total = stdout[1];
+  available = stdout[3];
+  used = parseFloat(stdout[1]) * (parseFloat(stdout[4]) / 100);
+  usageRate = stdout[4];
 
   return Promise.resolve({ total, available, used, usageRate });
 }
