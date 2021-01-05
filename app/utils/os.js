@@ -103,7 +103,8 @@ exports.sys = async () => {
     })
     sys = sys.trim();
   } else if (os.type() === 'Windows_NT') {
-    sys = '';
+    const { stdout } = await exec('ver');
+    sys = stdout.trim();
   }
 
   ip = '39.99.238.155';
