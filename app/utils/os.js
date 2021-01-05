@@ -101,7 +101,8 @@ exports.sys = async () => {
   //   sys = stdout;
   // })
   if (os.type() === 'Linux') {
-    sys = await exec('cat /etc/redhat-release');
+    const { stdout } = await exec('cat /etc/redhat-release');
+    sys = stdout;
   } else if (os.type() === 'Darwin') {
     const { stdout } = await exec('sw_vers');
     stdout.split('\n').forEach(item => {
