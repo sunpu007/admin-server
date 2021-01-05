@@ -2,7 +2,6 @@
 
 const os = require('os');
 const process = require('child_process');
-
 const { promisify } = require('util');
 
 const { formatStr } = require('./');
@@ -71,19 +70,6 @@ exports.mem = async () => {
   })
 }
 
-exports.upTime = async () => {
-  const time = os.uptime();
-
-  const day = Math.floor(time / 86400);
-  const hour = Math.floor((time - day * 86400) / 3600);
-  const minute = Math.floor((time - day * 86400 - hour * 3600) / 60);
-  const second = Math.floor(time - day * 86400 - hour * 3600 - minute * 60);
-  // console.log('%d天%d时%d分%d秒', day, hour, minute, second);
-
-  return Promise.resolve(formatStr('{0}天{1}时{2}分{3}秒', day, hour, minute, second));
-}
-
-
 exports.sys = async () => {
   // 获取系统运行时间
   let date = '',sys = '',ip = '';
@@ -120,4 +106,21 @@ exports.sys = async () => {
 
 
   return Promise.resolve({ date, sys, ip, loadavg1m, loadavg5m, loadavg12m });
+}
+
+exports.disk = async () => {
+  let total = 0,
+    available = 0,
+    used = 0,
+    usageRate = 0;
+  
+  let { stdout } = await exec('df -hl /');
+  stdout = stdout.split('\n')[1].split(' ').filter(item => item != '');
+
+  total = parseFloat(stdout[1]);
+  available = parseFloat(stdout[3]);
+  used = parseFloat(stdout[2]);
+  usageRate = (used / total * 100).toFixed(2);
+
+  return Promise.resolve({ total, available, used, usageRate });
 }

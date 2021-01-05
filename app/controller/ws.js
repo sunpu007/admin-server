@@ -2,7 +2,7 @@
 
 const { Controller } = require('egg');
 
-const { cpu, mem, sys, upTime } = require('../utils/os');
+const { cpu, mem, sys, disk } = require('../utils/os');
 
 class WsController extends Controller {
   async hello() {
@@ -22,13 +22,15 @@ class WsController extends Controller {
     let useCpu = await cpu();
     let useMem = await mem();
     let _sys = await sys();
-    ctx.websocket.send(JSON.stringify({ cpu: useCpu, mem: useMem, time: new Date().toISOString(), sys: _sys }));
+    let _disk = await disk();
+    ctx.websocket.send(JSON.stringify({ cpu: useCpu, mem: useMem, time: new Date().toISOString(), sys: _sys, disk: _disk }));
 
     setInterval(async () => {
       useCpu = await cpu();
       useMem = await mem();
       _sys = await sys();
-      ctx.websocket.send(JSON.stringify({ cpu: useCpu, mem: useMem, time: new Date().toISOString(), sys: _sys }));
+      _disk = await disk();
+      ctx.websocket.send(JSON.stringify({ cpu: useCpu, mem: useMem, time: new Date().toISOString(), sys: _sys, disk: _disk }));
     }, 1000);
   }
 }
