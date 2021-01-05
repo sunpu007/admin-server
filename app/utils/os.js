@@ -55,7 +55,7 @@ exports.mem = async () => {
     
     if (os.type() === 'Linux') {
       const { stdout } = await exec('free -m');
-      let str = stdout.split('\n')[1].split('').filter(item => item != '');
+      let str = stdout.split('\n')[1].split(' ').filter(item => item != '');
 
       totalmem = str[1];
       freemem = str[1] - str[2];
