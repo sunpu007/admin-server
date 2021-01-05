@@ -8,26 +8,29 @@ const { formatStr } = require('./');
 
 const exec = promisify(process.exec);
 
-function cpuAverage() {
-  //Initialise sum of idle and time of cores and fetch CPU info
-  var totalIdle = 0, totalTick = 0;
-  var cpus = os.cpus();
-  //Loop through CPU cores
-  for(var i = 0, len = cpus.length; i < len; i++) {
-    //Select CPU core
-    var cpu = cpus[i];
-    //Total up the time in the cores tick
-    for(const type in cpu.times) {
-      totalTick += cpu.times[type];
-   }     
-    //Total up the idle time of the core
-    totalIdle += cpu.times.idle;
-  }
-  //Return the average Idle and Tick times
-  return { idle: totalIdle / cpus.length,  total: totalTick / cpus.length };
-}
-
+/**
+ * 获取CPU使用情况
+ */
 exports.cpu = async () => {
+  function cpuAverage() {
+    //Initialise sum of idle and time of cores and fetch CPU info
+    var totalIdle = 0, totalTick = 0;
+    var cpus = os.cpus();
+    //Loop through CPU cores
+    for(var i = 0, len = cpus.length; i < len; i++) {
+      //Select CPU core
+      var cpu = cpus[i];
+      //Total up the time in the cores tick
+      for(const type in cpu.times) {
+        totalTick += cpu.times[type];
+     }     
+      //Total up the idle time of the core
+      totalIdle += cpu.times.idle;
+    }
+    //Return the average Idle and Tick times
+    return { idle: totalIdle / cpus.length,  total: totalTick / cpus.length };
+  }
+
   const startMeasure = cpuAverage();
   return new Promise((resolve) => {
     setTimeout(function() { 
@@ -44,6 +47,10 @@ exports.cpu = async () => {
   });
 }
 
+/**
+ * 获取内存使用情况
+ * *mac系统获取存在误差*
+ */
 exports.mem = async () => {
   return new Promise(async (resolve) => {
     let totalmem = 0,
@@ -70,6 +77,9 @@ exports.mem = async () => {
   })
 }
 
+/**
+ * 获取系统相关信息
+ */
 exports.sys = async () => {
   // 获取系统运行时间
   let date = '',sys = '',ip = '';
@@ -104,10 +114,13 @@ exports.sys = async () => {
   const loadavg5m = loadavg[1].toFixed(2);
   const loadavg12m = loadavg[2].toFixed(2);
 
-
   return Promise.resolve({ date, sys, ip, loadavg1m, loadavg5m, loadavg12m });
 }
 
+/**
+ * 获取磁盘使用情况
+ * *目前只能获取linux系统*
+ */
 exports.disk = async () => {
   let total = 0,
     available = 0,
