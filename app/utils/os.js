@@ -53,8 +53,7 @@ exports.mem = async () => {
       usageRate = 0;
     
     if (os.type() === 'Linux') {
-      const { stdout } = await exec('cat /etc/redhat-release');
-
+      const { stdout } = await exec('free -m');
       let str = stdout.split('\n')[1].split('').filter(item => item != '');
 
       totalmem = str[1];
