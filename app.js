@@ -22,7 +22,7 @@ class AppBootHook {
 
   async beforeClose() {
     await this.app.logger.info('【销毁定时任务】开始...');
-    const scheduleStacks = await this.app.scheduleStacks();
+    const scheduleStacks = await this.app.scheduleStacks;
     Reflect.ownKeys(scheduleStacks).forEach(async key => {
       await this.ctx.helper.cancelSchedule(key);
     });

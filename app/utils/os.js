@@ -1,8 +1,13 @@
 'use strict';
 
 const os = require('os');
+const process = require('child_process');
+
+const { promisify } = require('util');
 
 const { formatStr } = require('./');
+
+const exec = promisify(process.exec);
 
 function cpuAverage() {
   //Initialise sum of idle and time of cores and fetch CPU info
@@ -41,11 +46,27 @@ exports.cpu = async () => {
 }
 
 exports.mem = async () => {
-  return new Promise((resolve) => {
-    const totalmem = (os.totalmem() / 1024 / 1024 / 1024).toFixed(2);
-    const freemem = (os.freemem() / 1024 / 1024 / 1024).toFixed(2);
-    const usedmem = ((os.totalmem() - os.freemem()) / 1024 / 1024 / 1024).toFixed(2);
-    const usageRate = parseInt(usedmem / totalmem * 100);
+  return new Promise(async (resolve) => {
+    let totalmem = 0,
+      freemem = 0,
+      usedmem = 0,
+      usageRate = 0;
+    
+    if (os.type() === 'Linux') {
+      const { stdout } = await exec('cat /etc/redhat-release');
+
+      let str = stdout.split('\n')[1].split('').filter(item => item != '');
+
+      totalmem = str[1];
+      freemem = str[1] - str[2];
+      usedmem = str[2];
+      usageRate = (usedmem / totalmem * 100).toFixed(2);
+    } else {
+      totalmem = (os.totalmem() / 1024 / 1024 / 1024).toFixed(2);
+      freemem = (os.freemem() / 1024 / 1024 / 1024).toFixed(2);
+      usedmem = ((os.totalmem() - os.freemem()) / 1024 / 1024 / 1024).toFixed(2);
+      usageRate = parseInt(usedmem / totalmem * 100);
+    }
 
     resolve({ totalmem, freemem, usedmem, usageRate });
   })
@@ -61,4 +82,37 @@ exports.upTime = async () => {
   // console.log('%d天%d时%d分%d秒', day, hour, minute, second);
 
   return Promise.resolve(formatStr('{0}天{1}时{2}分{3}秒', day, hour, minute, second));
+}
+
+
+exports.sys = async () => {
+  let date = '',sys = '',ip = '';
+
+  const time = os.uptime();
+
+  const day = Math.floor(time / 86400);
+  const hour = Math.floor((time - day * 86400) / 3600);
+  const minute = Math.floor((time - day * 86400 - hour * 3600) / 60);
+  const second = Math.floor(time - day * 86400 - hour * 3600 - minute * 60);
+
+  date = formatStr('{0}天{1}时{2}分{3}秒', day, hour, minute, second);
+
+  // process.exec('cat /etc/redhat-release', (error, stdout) => {
+  //   sys = stdout;
+  // })
+  if (os.type() === 'Linux') {
+    sys = await exec('cat /etc/redhat-release');
+  } else if (os.type() === 'Darwin') {
+    const { stdout } = await exec('sw_vers');
+    stdout.split('\n').forEach(item => {
+      sys += item.split(':')[1] ? item.split(':')[1] : '';
+    })
+    sys = sys.trim();
+  } else if (os.type() === 'Windows_NT') {
+    sys = '';
+  }
+
+  ip = '39.99.238.155';
+
+  return Promise.resolve({ date, sys, ip });
 }
