@@ -86,10 +86,10 @@ exports.upTime = async () => {
 
 
 exports.sys = async () => {
+  // 获取系统运行时间
   let date = '',sys = '',ip = '';
 
   const time = os.uptime();
-
   const day = Math.floor(time / 86400);
   const hour = Math.floor((time - day * 86400) / 3600);
   const minute = Math.floor((time - day * 86400 - hour * 3600) / 60);
@@ -97,9 +97,7 @@ exports.sys = async () => {
 
   date = formatStr('{0}天{1}时{2}分{3}秒', day, hour, minute, second);
 
-  // process.exec('cat /etc/redhat-release', (error, stdout) => {
-  //   sys = stdout;
-  // })
+  // 获取系统信息
   if (os.type() === 'Linux') {
     const { stdout } = await exec('cat /etc/redhat-release');
     sys = stdout.trim();
@@ -115,5 +113,12 @@ exports.sys = async () => {
 
   ip = '39.99.238.155';
 
-  return Promise.resolve({ date, sys, ip });
+  // 获取系统负载
+  const loadavg = os.loadavg();
+  const loadavg1m = loadavg[0].toFixed(2);
+  const loadavg5m = loadavg[1].toFixed(2);
+  const loadavg12m = loadavg[2].toFixed(2);
+
+
+  return Promise.resolve({ date, sys, ip, loadavg1m, loadavg5m, loadavg12m });
 }
