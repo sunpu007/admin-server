@@ -50,8 +50,7 @@ exports.mem = async () => {
     let totalmem = 0,
       freemem = 0,
       usedmem = 0,
-      usageRate = 0,
-      str = '';
+      usageRate = 0;
     
     if (os.type() === 'Linux') {
       const { stdout } = await exec('free -m');
@@ -68,7 +67,7 @@ exports.mem = async () => {
       usageRate = parseInt(usedmem / totalmem * 100);
     }
 
-    resolve({ totalmem, freemem, usedmem, usageRate, str });
+    resolve({ totalmem, freemem, usedmem, usageRate });
   })
 }
 
