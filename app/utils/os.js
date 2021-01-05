@@ -40,7 +40,7 @@ exports.cpu = async () => {
       //Calculate the average percentage CPU usage
       var percentageCPU = 100 - ~~(100 * idleDifference / totalDifference);
       //Output result to console
-      resolve({ used: percentageCPU, name: os.cpus()[0].model, coreNumber: os.cpus().length });
+      resolve({ used: percentageCPU, name: os.cpus()[0].model, threadNumber: os.cpus().length });
     }, 100);
   });
 }
@@ -102,7 +102,7 @@ exports.sys = async () => {
   // })
   if (os.type() === 'Linux') {
     const { stdout } = await exec('cat /etc/redhat-release');
-    sys = stdout;
+    sys = stdout.trim();
   } else if (os.type() === 'Darwin') {
     const { stdout } = await exec('sw_vers');
     stdout.split('\n').forEach(item => {
