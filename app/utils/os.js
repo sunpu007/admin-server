@@ -120,7 +120,7 @@ exports.disk = async () => {
   total = stdout[1];
   available = stdout[3];
   used = parseFloat(stdout[1]) * (parseFloat(stdout[4]) / 100);
-  usageRate = stdout[4];
+  usageRate = parseFloat(stdout[4]);
 
   return Promise.resolve({ total, available, used, usageRate });
 }
