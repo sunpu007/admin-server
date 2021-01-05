@@ -120,21 +120,33 @@ exports.sys = async () => {
 
 /**
  * 获取磁盘使用情况
- * *目前只能获取linux系统*
+ * *目前只能获取linux、windows系统使用情况*
  */
 exports.disk = async () => {
   let total = 0,
     available = 0,
     used = 0,
     usageRate = 0;
-  
-  let { stdout } = await exec('df -hl /');
-  stdout = stdout.split('\n')[1].split(' ').filter(item => item != '');
+  if (os.type() === 'Windows_NT') {
+    let { stdout } = await exec('df -lh');
+    stdout = stdout.split('\n').filter(item => item.length > 0);
+    stdout.shift();
+    stdout.forEach(line => {
+      line = line.split(' ').filter(item => item != '');
+      total += parseFloat(line[1]);
+      available += parseFloat(line[3]);
+      used += parseFloat(line[1]) * (parseFloat(line[4]) / 100);
+    });
+    usageRate = (used / total * 100).toFixed(2);
+  } else {
+    let { stdout } = await exec('df -hl /');
+    stdout = stdout.split('\n')[1].split(' ').filter(item => item != '');
 
-  total = stdout[1];
-  available = stdout[3];
-  used = parseFloat(stdout[1]) * (parseFloat(stdout[4]) / 100);
-  usageRate = parseFloat(stdout[4]);
+    total = stdout[1];
+    available = stdout[3];
+    used = parseFloat(stdout[1]) * (parseFloat(stdout[4]) / 100);
+    usageRate = parseFloat(stdout[4]);
+  }
 
   return Promise.resolve({ total, available, used, usageRate });
 }
