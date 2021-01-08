@@ -28,4 +28,8 @@ module.exports = app => {
   router.post(`${config.contextPath}/system/role/edit`, checkTokenHandler, controller.system.editRole);
   // 编辑角色菜单
   router.post(`${config.contextPath}/system/role/menu/edit`, checkTokenHandler, controller.system.editRoleMenu);
+  // 获取谷歌验证码绑定信息
+  router.get(`${config.contextPath}/system/admin/open/google/auth`, checkTokenHandler, controller.system.openGoogleAuth);
+  // 谷歌身份验证绑定
+  router.get(`${config.contextPath}/system/admin/google/verify`, checkTokenHandler, controller.system.googleVerify);
 };

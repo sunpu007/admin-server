@@ -14,3 +14,8 @@ exports.websocket = {
   enable: true,
   package: 'egg-websocket-plugin',
 };
+
+exports.googleAuth = {
+  enable: true,
+  package: 'egg-google-auth',
+};

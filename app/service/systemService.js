@@ -5,6 +5,8 @@ const { RESULT_FAIL } = require('../constants/result');
 const { generateAdminPwd, getMd5 } = require('../utils');
 const GlobalError = require('../utils/GlobalError');
 
+const QRCode = require('qrcode');
+
 class SystemService extends Service {
   // 获取管理员账号
   async adminList() {
@@ -116,6 +118,32 @@ class SystemService extends Service {
       return { menu_id: id, role_id };
     });
     await this.app.mysql.insert('sys_roles_menus', insertArr);
+  }
+  // 获取谷歌验证码绑定信息
+  async openGoogleAuth() {
+    const { adminId } = ctx.request.headers;
+    // 获取用户信息
+    const adminInfo = await this.app.mysql.get('sys_admin', { admin_id: adminId });
+    if (adminInfo && adminInfo.google_secret_key !== '') throw new GlobalError(RESULT_FAIL, '您已开启谷歌身份验证！');
+    // 生成私钥
+    const secretKey = await this.ctx.helper.generateGoogleSecretKey();
+    // 生成二维码信息
+    const imgStr = await this.ctx.helper.generateGoogleQrCodeData(secretKey, adminInfo.username);
+    return {
+      googleImg: await QRCode.toDataURL(imgStr),
+      googleKey: secretKey,
+      googleUser: adminInfo.username,
+    };
+  }
+  // 谷歌身份验证绑定
+  async googleVerify({ googleKey, googleCode, loginPwd }) {
+    const { adminId } = ctx.request.headers;
+    // 验证谷歌验证码
+    const verify = await this.ctx.helper.googleAuthVerify(googleKey, googleCode);
+    if (!verify) throw new GlobalError(RESULT_FAIL, '谷歌验证码不正确');
+    // 更新用户信息
+    const result = await this.app.mysql.update('sys_admin', { google_secret_key: googleKey }, { where: { admin_id: adminId, password: getMd5(loginPwd) } });
+    if (result.affectedRows === 1) throw new GlobalError(RESULT_FAIL, '密码错误，请重新输入');
   }
 }
 

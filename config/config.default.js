@@ -69,6 +69,10 @@ module.exports = appInfo => {
     },
   };
 
+  config.googleAuth = {
+    appName: 'AdminDemo',
+  };
+
   /** 运行异常 */
   config.onerror = {
     all(err, ctx) {

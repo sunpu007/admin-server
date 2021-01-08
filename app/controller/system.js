@@ -97,6 +97,22 @@ class SystemController extends Controller {
     await ctx.service.systemService.editRoleMenu(ctx.request.body);
     ctx.body = setResult();
   }
+  /**
+   * 获取谷歌验证码绑定信息
+   */
+  async openGoogleAuth() {
+    const { ctx } = this;
+    const result = await ctx.service.systemService.openGoogleAuth();
+    ctx.body = setResult({ data: result });
+  }
+  /**
+   * 谷歌身份验证绑定
+   */
+  async googleVerify() {
+    const { ctx } = this;
+    await ctx.service.systemService.googleVerify(ctx.request.body);
+    ctx.body = setResult();
+  }
 }
 
 module.exports = SystemController;
