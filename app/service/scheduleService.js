@@ -5,19 +5,24 @@ const { Service } = require('egg');
 class ScheduleService extends Service {
   /**
    * 测试处理程序
-   * @param {*} job_id 任务ID
+   * @param {*} params 任务参数
    */
-  async testHandler(job_id) {
-    // 读取锁,保证一个任务同时只能有一个进程执行
-    const locked = await this.app.redlock.lock('sendAllUserBroadcast:' + job_id, 'sendAllUserBroadcast', 180);
-    if (!locked) return false;
-
-    const schedule = await this.app.mysql.get('schedule_job', { job_id });
+  async testHandler(params) {
     // 此处替换成具体业务代码
-    await this.logger.info('我是测试任务，任务信息: %j', schedule);
-
-    // 释放锁
-    await this.app.redlock.unlock('sendAllUserBroadcast:' + job_id);
+    await this.logger.info('我是测试任务，任务参数: %s', params);
+  }
+  /**
+   * 测试调用接口任务
+   * @param {*} params 任务参数
+   */
+  async testCurlHandler(params) {
+    // 获取参数
+    const paramsObj = JSON.parse(params)
+    const result = await this.ctx.curl(paramsObj.url, {
+      method: paramsObj.method,
+      data: paramsObj.data
+    });
+    await this.logger.info('测试调用接口任务，状态码：%d，返回值：%j', result.status);
   }
 }
 

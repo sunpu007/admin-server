@@ -14,8 +14,22 @@ module.exports = {
    */
   async generateSchedule(id, cron, jobName, jobHandler) {
     this.ctx.logger.info('[创建定时任务]，任务ID: %s，cron: %s，任务名: %s，任务方法: %s', id, cron, jobName, jobHandler);
-    this.app.scheduleStacks[jobName] = schedule.scheduleJob(cron, () => {
-      this.service.scheduleService[jobHandler](id);
+    this.app.scheduleStacks[jobName] = schedule.scheduleJob(cron, async () => {
+      // 读取锁,保证一个任务同时只能有一个进程执行
+      const locked = await this.app.redlock.lock('sendAllUserBroadcast:' + id, 'sendAllUserBroadcast', 180);
+      if (!locked) return false;
+
+      try {
+        // 获取任务信息
+        const schedule = await this.app.mysql.get('schedule_job', { job_id: id });
+        // 调用任务方法
+        await this.service.scheduleService[jobHandler](schedule.params);
+      } catch (error) {
+        await this.logger.info('执行任务`%s`失败，时间：%s, 错误信息：%j', jobName, new Date().toLocaleString(), error)
+      } finally {
+        // 释放锁
+        await this.app.redlock.unlock('sendAllUserBroadcast:' + id);
+      }
     });
   },
   /**

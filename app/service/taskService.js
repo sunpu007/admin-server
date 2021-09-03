@@ -94,7 +94,7 @@ class TaskService extends Service {
     if (schedule === null) throw new GlobalError(RESULT_FAIL, '任务不存在');
 
     // 执行任务
-    this.service.scheduleService[schedule.jobHandler]();
+    this.service.scheduleService[schedule.jobHandler](schedule.params);
   }
 }
 
