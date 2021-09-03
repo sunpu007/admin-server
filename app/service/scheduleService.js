@@ -22,7 +22,7 @@ class ScheduleService extends Service {
       method: paramsObj.method,
       data: paramsObj.data
     });
-    await this.logger.info('测试调用接口任务，状态码：%d，返回值：%j', result.status);
+    // await this.logger.info('测试调用接口任务，状态码：%d，返回值：%j', result.status);
   }
 }
 
