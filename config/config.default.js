@@ -73,6 +73,13 @@ module.exports = appInfo => {
     appName: 'AdminDemo',
   };
 
+  // 性能监控
+  config.alinode = {
+    server: 'wss://agentserver.node.aliyun.com:8080',
+    appid: process.env.ADMIN_DEMO_ALINODE_APPID,
+    secret: process.env.ADMIN_DEMO_ALINODE_APPSECRET,
+  };
+
   /** 运行异常 */
   config.onerror = {
     all(err, ctx) {

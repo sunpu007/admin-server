@@ -19,3 +19,8 @@ exports.googleAuth = {
   enable: true,
   package: 'egg-google-auth',
 };
+
+exports.alinode = {
+  enable: true,
+  package: 'egg-alinode'
+};

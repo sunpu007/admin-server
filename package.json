@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "egg": "^2.15.1",
+    "egg-alinode": "^2.0.1",
     "egg-google-auth": "^0.0.3",
     "egg-mysql": "^3.0.0",
     "egg-redis": "^2.4.0",
