@@ -36,6 +36,7 @@ class WsController extends Controller {
 
     // 监听断开清除定时器
     ctx.websocket.on('close', () => {
+      this.logger.info('websocket链接断开');
       clearInterval(time)
     })
   }
