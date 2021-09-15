@@ -25,13 +25,19 @@ class WsController extends Controller {
     let _disk = await disk();
     ctx.websocket.send(JSON.stringify({ cpu: useCpu, mem: useMem, time: new Date().toISOString(), sys: _sys, disk: _disk }));
 
-    setInterval(async () => {
+    const time = setInterval(async () => {
       useCpu = await cpu();
       useMem = await mem();
       _sys = await sys();
       _disk = await disk();
       ctx.websocket.send(JSON.stringify({ cpu: useCpu, mem: useMem, time: new Date().toISOString(), sys: _sys, disk: _disk }));
     }, 1000);
+
+
+    // 监听断开清除定时器
+    ctx.websocket.on('close', () => {
+      clearInterval(time)
+    })
   }
 }
 
