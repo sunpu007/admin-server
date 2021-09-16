@@ -15,7 +15,7 @@ class SystemService extends Service {
       LEFT JOIN sys_role role ON admin.role_id = role.role_id ORDER BY admin.create_time ASC;`);
   }
   // 编辑/新增管理员账号
-  async editAdmin(userName, { adminId, username, avatarUrl, roleId }) {
+  async editAdmin(userName, { adminId, username, avatarUrl = '', roleId }) {
     if (!adminId) {
       // 新增
       const pwd = generateAdminPwd(8);
