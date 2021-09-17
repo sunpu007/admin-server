@@ -100,7 +100,7 @@ class TaskService extends Service {
       // 执行日志初始化
       await jobHandlerLog.init(schedule)
       // 执行任务
-      this.service.scheduleService[schedule.jobHandler](schedule.params); 
+      this.service.scheduleService[schedule.jobHandler](schedule.params, jobHandlerLog); 
     } catch (error) {
       await this.logger.info('执行任务`%s`失败，时间：%s, 错误信息：%j', jobName, new Date().toLocaleString(), error);
       // 记录失败日志
