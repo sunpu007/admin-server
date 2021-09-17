@@ -18,7 +18,7 @@ class WsController extends Controller {
     //   .on('close', (code, reason) => {
     //     console.log('websocket closed', code, reason);
     //   });
-    
+
     let useCpu = await cpu();
     let useMem = await mem();
     let _sys = await sys();
@@ -36,8 +36,8 @@ class WsController extends Controller {
 
     // 监听断开清除定时器
     ctx.websocket.on('close', () => {
-      clearInterval(time)
-    })
+      clearInterval(time);
+    });
   }
 }
 

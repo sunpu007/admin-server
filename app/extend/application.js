@@ -30,5 +30,5 @@ module.exports = {
       this[SCHEDULESTACKS] = {};
     }
     return this[SCHEDULESTACKS];
-  }
+  },
 };

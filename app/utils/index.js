@@ -65,7 +65,7 @@ exports.generateAdminPwd = length => {
 exports.formatStr = (str, ...args) => {
   if (str === '') return '';
   for (const i in args) {
-    str = str.replace(new RegExp('\\{' + i + '\\}', 'g'), args[i]);
+    str = str.replace(new RegExp('\\{' + i + '\\}', 'g'), args[i] || '');
   }
   return str;
 };

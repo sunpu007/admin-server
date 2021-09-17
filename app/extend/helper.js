@@ -1,6 +1,7 @@
 'use strict';
 
 const schedule = require('node-schedule');
+const JobHandlerLog = require('../utils/JobHandlerLog');
 
 module.exports = {
   /**
@@ -19,13 +20,21 @@ module.exports = {
       const locked = await this.app.redlock.lock('sendAllUserBroadcast:' + id, 'sendAllUserBroadcast', 180);
       if (!locked) return false;
 
+      const jobHandlerLog = new JobHandlerLog(this.app);
+
       try {
         // 获取任务信息
         const schedule = await this.app.mysql.get('schedule_job', { job_id: id });
+
+        // 执行日志初始化
+        await jobHandlerLog.init(schedule)
+
         // 调用任务方法
-        await this.service.scheduleService[jobHandler](schedule.params);
+        await this.service.scheduleService[jobHandler](schedule.params, jobHandlerLog);
       } catch (error) {
-        await this.logger.info('执行任务`%s`失败，时间：%s, 错误信息：%j', jobName, new Date().toLocaleString(), error)
+        await this.logger.info('执行任务`%s`失败，时间：%s, 错误信息：%j', jobName, new Date().toLocaleString(), error);
+        // 记录失败日志
+        await jobHandlerLog.error('执行任务`{0}`失败，时间：{1}, 错误信息：{2}', jobName, new Date().toLocaleString(), error);
       } finally {
         // 释放锁
         await this.app.redlock.unlock('sendAllUserBroadcast:' + id);

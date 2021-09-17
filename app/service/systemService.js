@@ -111,7 +111,7 @@ class SystemService extends Service {
   }
   // 编辑角色菜单
   async editRoleMenu({ role_id, menuIds }) {
-    if (role_id === 1) throw new GlobalError(RESULT_FAIL, '超级管理员权限不允许更改')
+    if (role_id === 1) throw new GlobalError(RESULT_FAIL, '超级管理员权限不允许更改');
     // 删除当前所有绑定关系
     await this.app.mysql.delete('sys_roles_menus', { role_id });
     // 保存更新后的绑定关系
