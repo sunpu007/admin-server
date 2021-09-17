@@ -4,6 +4,7 @@ const { Service } = require('egg');
 const { SCHEDULE_STATUS } = require('../constants');
 const { RESULT_FAIL } = require('../constants/result');
 const GlobalError = require('../utils/GlobalError');
+const JobHandlerLog = require('../utils/JobHandlerLog');
 
 /**
  * task Service
@@ -93,8 +94,18 @@ class TaskService extends Service {
     const schedule = await this.app.mysql.get('schedule_job', { job_id });
     if (schedule === null) throw new GlobalError(RESULT_FAIL, '任务不存在');
 
-    // 执行任务
-    this.service.scheduleService[schedule.jobHandler](schedule.params);
+    const jobHandlerLog = new JobHandlerLog(this.app);
+
+    try {
+      // 执行日志初始化
+      await jobHandlerLog.init(schedule)
+      // 执行任务
+      this.service.scheduleService[schedule.jobHandler](schedule.params); 
+    } catch (error) {
+      await this.logger.info('执行任务`%s`失败，时间：%s, 错误信息：%j', jobName, new Date().toLocaleString(), error);
+      // 记录失败日志
+      await jobHandlerLog.error('执行任务`{0}`失败，时间：{1}, 错误信息：{2}', jobName, new Date().toLocaleString(), error);
+    }
   }
 }
 
