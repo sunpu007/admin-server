@@ -63,6 +63,7 @@ class TaskController extends Controller {
   async scheduleLogDateil() {
     const { ctx } = this;
     const result = await ctx.service.taskService.scheduleLogDateil(ctx.request.query);
+    console.log(result)
     ctx.body = setResult({ data: result });
   }
 }

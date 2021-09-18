@@ -30,7 +30,6 @@ class JobHandlerLog {
 
   // 定时任务执行结束
   async end() {
-    console.log('=======>end')
     await this.app.mysql.update('schedule_job_log', { execution_status: SCHEDULE_EXECUTION_STATUS.END }, { where: { id: this.id } });
   }
 }
