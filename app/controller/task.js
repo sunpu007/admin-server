@@ -49,6 +49,22 @@ class TaskController extends Controller {
     await ctx.service.taskService.runSchedule(ctx.request.body);
     ctx.body = setResult();
   }
+  /**
+   * 获取任务执行日志
+   */
+  async scheduleLogList() {
+    const { ctx } = this;
+    const result = await ctx.service.taskService.scheduleLogList(ctx.request.query);
+    ctx.body = setResult({ data: result });
+  }
+  /**
+   * 获取任务执行日志详细信息
+   */
+  async scheduleLogDateil() {
+    const { ctx } = this;
+    const result = await ctx.service.taskService.scheduleLogDateil(ctx.request.query);
+    ctx.body = setResult({ data: result });
+  }
 }
 
 module.exports = TaskController;

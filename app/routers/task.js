@@ -16,4 +16,8 @@ module.exports = app => {
   router.post(`${config.contextPath}/task/schedule/status/update`, checkTokenHandler, controller.task.updateStatusSchedule);
   // 执行任务
   router.post(`${config.contextPath}/task/schedule/run`, checkTokenHandler, controller.task.runSchedule);
+  // 定时任务日志列表
+  router.get(`${config.contextPath}/task/schedule/log/list`, checkTokenHandler, controller.task.scheduleLogList);
+  // 获取任务执行日志详细信息
+  router.get(`${config.contextPath}/task/schedule/log/detail`, checkTokenHandler, controller.task.scheduleLogDateil);
 };

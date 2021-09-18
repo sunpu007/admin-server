@@ -38,6 +38,8 @@ module.exports = {
       } finally {
         // 释放锁
         await this.app.redlock.unlock('sendAllUserBroadcast:' + id);
+        // 更新日志记录状态
+        await jobHandlerLog.end();
       }
     });
   },

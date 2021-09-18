@@ -1,7 +1,7 @@
 'use strict';
 
 const { Service } = require('egg');
-const { SCHEDULE_STATUS } = require('../constants');
+const { SCHEDULE_STATUS, SCHEDULE_TRIGGER_TYPE } = require('../constants');
 const { RESULT_FAIL } = require('../constants/result');
 const GlobalError = require('../utils/GlobalError');
 const JobHandlerLog = require('../utils/JobHandlerLog');
@@ -98,14 +98,40 @@ class TaskService extends Service {
 
     try {
       // 执行日志初始化
-      await jobHandlerLog.init(schedule)
+      await jobHandlerLog.init(schedule, SCHEDULE_TRIGGER_TYPE.MANUAL)
       // 执行任务
       this.service.scheduleService[schedule.jobHandler](schedule.params, jobHandlerLog); 
     } catch (error) {
-      await this.logger.info('执行任务`%s`失败，时间：%s, 错误信息：%j', jobName, new Date().toLocaleString(), error);
+      await this.logger.info('执行任务`%s`失败，时间：%s, 错误信息：%j', schedule.jobName, new Date().toLocaleString(), error);
       // 记录失败日志
-      await jobHandlerLog.error('执行任务`{0}`失败，时间：{1}, 错误信息：{2}', jobName, new Date().toLocaleString(), error);
+      await jobHandlerLog.error('执行任务`{0}`失败，时间：{1}, 错误信息：{2}', schedule.jobName, new Date().toLocaleString(), error);
+    } finally {
+      // 更新日志记录状态
+      await jobHandlerLog.end();
     }
+  }
+  // 获取任务执行日志
+  async scheduleLogList({ job_id, page = 1, size = 20 }) {
+    const limit = parseInt(size),
+      offset = parseInt(page - 1) * parseInt(size);
+
+    const [ list, total ] = await Promise.all([
+      this.app.mysql.query(`SELECT job.jobName jobName, log.id id, log.job_handler jobHandler, log.job_param jobParam, log.handle_time handleTime,
+      log.job_status jobStatus, log.trigger_type triggerType, log.execution_status executionStatus, log.error_log errorLog FROM schedule_job job,
+      schedule_job_log log WHERE job.job_id = log.job_id AND log.job_id = ? ORDER BY log.create_time DESC LIMIT ?,?`, [ job_id, offset, limit]),
+      this.app.mysql.count('schedule_job_log', { job_id })
+    ]);
+
+    return { list, total };
+  }
+  // 获取任务执行日志详细信息
+  async scheduleLogDateil({ id }) {
+    const result = await this.app.mysql.select('schedule_job_log', {
+      where: { id },
+      columns: ['job_log'],
+    })
+
+    return { log: result.job_log };
   }
 }
 

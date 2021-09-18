@@ -1,5 +1,6 @@
 'use strict';
 
+const { SCHEDULE_EXECUTION_STATUS, SCHEDULE_TRIGGER_TYPE } = require('../constants');
 const { formatStr } = require('./index')
 
 class JobHandlerLog {
@@ -9,9 +10,9 @@ class JobHandlerLog {
   }
 
   // 初始化日志
-  async init(schedule) {
+  async init(schedule, triggerType = SCHEDULE_TRIGGER_TYPE.TASK) {
     const result = await this.app.mysql.insert('schedule_job_log', {
-      job_id: schedule.job_id, job_handler: schedule.jobHandler, job_param: schedule.params });
+      job_id: schedule.job_id, job_handler: schedule.jobHandler, job_param: schedule.params, trigger_type: triggerType });
     this.id = result.insertId;
   }
 
@@ -25,6 +26,12 @@ class JobHandlerLog {
   async error(logStr, ...args) {
     const errorMsg = formatStr(logStr, ...args);
     await this.app.mysql.query('UPDATE schedule_job_log SET job_status = -1 AND error_log = ? WHERE id = ?', [ errorMsg, this.id ]);
+  }
+
+  // 定时任务执行结束
+  async end() {
+    console.log('=======>end')
+    await this.app.mysql.update('schedule_job_log', { execution_status: SCHEDULE_EXECUTION_STATUS.END }, { where: { id: this.id } });
   }
 }
 
