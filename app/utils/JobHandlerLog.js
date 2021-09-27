@@ -12,7 +12,7 @@ class JobHandlerLog {
   // 初始化日志
   async init(schedule, triggerType = SCHEDULE_TRIGGER_TYPE.TASK) {
     const result = await this.app.mysql.insert('schedule_job_log', {
-      job_id: schedule.job_id, job_handler: schedule.jobHandler, job_param: schedule.params, trigger_type: triggerType });
+      job_id: schedule.job_id, job_handler: schedule.jobHandler, job_param: schedule.params, trigger_type: triggerType, job_log: '' });
     this.id = result.insertId;
   }
 
