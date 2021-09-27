@@ -61,7 +61,7 @@ CREATE TABLE `schedule_job_log`  (
   `trigger_type` int(1) NOT NULL DEFAULT 0 COMMENT '触发类型：0-任务触发 1-手动触发',
   `execution_status` int(1) NOT NULL DEFAULT 0 COMMENT '任务状态：0-执行中 1-执行完成',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT =  CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务执行日志' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务执行日志' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for sys_admin
