@@ -2,6 +2,7 @@
 
 const schedule = require('node-schedule');
 const JobHandlerLog = require('../utils/JobHandlerLog');
+const { SCHEDULE_STACKS } = require('../constants/redis');
 
 module.exports = {
   /**
@@ -42,6 +43,7 @@ module.exports = {
         await jobHandlerLog.end();
       }
     });
+    await this.app.redis.set(`${SCHEDULE_STACKS}${jobName}:${this.app.scheduleStacks[jobName]}`, this.app.scheduleStacks[jobName])
   },
   /**
    * 取消/停止定时任务
@@ -49,6 +51,7 @@ module.exports = {
    */
   async cancelSchedule(jobName) {
     this.ctx.logger.info('[取消定时任务]，任务名：%s', jobName);
+    await this.app.redis.del(`${SCHEDULE_STACKS}${jobName}:${this.app.scheduleStacks[jobName]}`, this.app.scheduleStacks[jobName])
     this.app.scheduleStacks[jobName] && this.app.scheduleStacks[jobName].cancel();
   },
 };
