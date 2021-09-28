@@ -1,6 +1,7 @@
 'use strict';
 
 const schedule = require('node-schedule');
+const NodeUUID = require('node-uuid');
 const JobHandlerLog = require('../utils/JobHandlerLog');
 const { SCHEDULE_STACKS } = require('../constants/redis');
 
@@ -16,7 +17,9 @@ module.exports = {
    */
   async generateSchedule(id, cron, jobName, jobHandler) {
     this.ctx.logger.info('[创建定时任务]，任务ID: %s，cron: %s，任务名: %s，任务方法: %s', id, cron, jobName, jobHandler);
-    this.app.scheduleStacks[jobName] = schedule.scheduleJob(cron, async () => {
+    // 生成任务唯一值
+    const uuid = NodeUUID.v4()
+    this.app.scheduleStacks[jobName] = schedule.scheduleJob(uuid, cron, async () => {
       // 读取锁,保证一个任务同时只能有一个进程执行
       const locked = await this.app.redlock.lock('sendAllUserBroadcast:' + id, 'sendAllUserBroadcast', 180);
       if (!locked) return false;
@@ -43,7 +46,7 @@ module.exports = {
         await jobHandlerLog.end();
       }
     });
-    await this.app.redis.set(`${SCHEDULE_STACKS}${jobName}:${this.app.scheduleStacks[jobName]}`, this.app.scheduleStacks[jobName])
+    await this.app.redis.set(`${SCHEDULE_STACKS}${uuid}`, `${jobName}-${Date.now()}`)
   },
   /**
    * 取消/停止定时任务
@@ -51,7 +54,7 @@ module.exports = {
    */
   async cancelSchedule(jobName) {
     this.ctx.logger.info('[取消定时任务]，任务名：%s', jobName);
-    await this.app.redis.del(`${SCHEDULE_STACKS}${jobName}:${this.app.scheduleStacks[jobName]}`, this.app.scheduleStacks[jobName])
+    await this.app.redis.del(`${SCHEDULE_STACKS}${this.app.scheduleStacks[jobName].name}`)
     this.app.scheduleStacks[jobName] && this.app.scheduleStacks[jobName].cancel();
   },
 };
