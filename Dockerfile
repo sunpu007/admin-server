@@ -6,9 +6,9 @@ ENV NODE_ENV production
 
 # 配置阿里性能平台参数
 # Node.js 性能平台给您的项目生成的 appid
-ENV ADMIN_DEMO_ALINODE_APPID 89272
+ENV ADMIN_DEMO_ALINODE_APPID appid
 # Node.js 性能平台给您的项目生成的 secret
-ENV ADMIN_DEMO_ALINODE_APPSECRET 7fd051095a0ad61cebd07b692be96b4327ec12c9
+ENV ADMIN_DEMO_ALINODE_APPSECRET secret
 
 # 创建工作目录
 RUN mkdir -p /usr/src/app
