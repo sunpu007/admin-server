@@ -4,6 +4,7 @@ const schedule = require('node-schedule');
 const NodeUUID = require('node-uuid');
 const JobHandlerLog = require('../utils/JobHandlerLog');
 const { SCHEDULE_STACKS } = require('../constants/redis');
+const { SCHEDULE_STATUS } = require('../constants/index');
 
 module.exports = {
   /**
@@ -30,11 +31,19 @@ module.exports = {
         // 获取任务信息
         const schedule = await this.app.mysql.get('schedule_job', { job_id: id });
 
-        // 执行日志初始化
-        await jobHandlerLog.init(schedule)
+        // 判断任务状态
+        if (schedule.status === SCHEDULE_STATUS.STOP) {
+          // 当任务处于停止状态时，取消当前执行
+          // 任务容错，防止用户在调用停止接口时不是当前worker
+          await this.cancelSchedule(jobName);
+          await this.logger.info('执行任务`%s`时，任务状态为停止状态');
+        } else {
+          // 执行日志初始化
+          await jobHandlerLog.init(schedule)
 
-        // 调用任务方法
-        await this.service.scheduleService[jobHandler](schedule.params, jobHandlerLog);
+          // 调用任务方法
+          await this.service.scheduleService[jobHandler](schedule.params, jobHandlerLog);
+        }
       } catch (error) {
         await this.logger.info('执行任务`%s`失败，时间：%s, 错误信息：%j', jobName, new Date().toLocaleString(), error);
         // 记录失败日志
