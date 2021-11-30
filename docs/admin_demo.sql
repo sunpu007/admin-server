@@ -3,15 +3,15 @@
 
  Source Server         : uat
  Source Server Type    : MySQL
- Source Server Version : 50734
+ Source Server Version : 50736
  Source Host           : adminDemodb:3306
  Source Schema         : admin_demo
 
  Target Server Type    : MySQL
- Target Server Version : 50734
+ Target Server Version : 50736
  File Encoding         : 65001
 
- Date: 27/09/2021 14:46:23
+ Date: 30/11/2021 10:59:49
 */
 
 SET NAMES utf8mb4;
@@ -36,13 +36,13 @@ CREATE TABLE `schedule_job`  (
   PRIMARY KEY (`job_id`) USING BTREE,
   UNIQUE INDEX `key_id`(`job_id`) USING BTREE,
   INDEX `key_handler`(`jobHandler`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of schedule_job
 -- ----------------------------
-INSERT INTO `schedule_job` VALUES (1, '*/5 * * * * *', 'test1', 'testHandler', '', '', -1, 'admin', 'admin', '2020-12-15 15:22:15', '2021-09-27 14:44:56');
-INSERT INTO `schedule_job` VALUES (6, '0 0 * * * *', 'testCurl', 'testCurlHandler', '{\n\"url\": \"https://www.myjerry.cn\",\n\"method\": \"get\",\n\"data\": { \"id\": 1 }\n}', '调用接口', 0, 'admin', 'admin', '2021-09-03 10:32:32', '2021-09-27 14:44:57');
+INSERT INTO `schedule_job` VALUES (1, '*/5 * * * * *', 'test1', 'testHandler', '', '', -1, 'admin', 'admin', '2020-12-15 23:22:15', '2021-09-27 22:44:56');
+INSERT INTO `schedule_job` VALUES (6, '0 0 * * * *', 'testCurl', 'testCurlHandler', '{\n\"url\": \"https://www.myjerry.cn\",\n\"method\": \"get\",\n\"data\": { \"id\": 1 }\n}', '调用接口', -1, 'admin', 'admin', '2021-09-03 18:32:32', '2021-11-29 21:02:15');
 
 -- ----------------------------
 -- Table structure for schedule_job_log
@@ -60,8 +60,17 @@ CREATE TABLE `schedule_job_log`  (
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `trigger_type` int(1) NOT NULL DEFAULT 0 COMMENT '触发类型：0-任务触发 1-手动触发',
   `execution_status` int(1) NOT NULL DEFAULT 0 COMMENT '任务状态：0-执行中 1-执行完成',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务执行日志' ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `key_job_id`(`job_id`) USING BTREE,
+  INDEX `key_job_handler`(`job_handler`) USING BTREE,
+  INDEX `key_job_status`(`job_status`) USING BTREE,
+  INDEX `key_execution_status`(`execution_status`) USING BTREE,
+  INDEX `key_trigger_type`(`trigger_type`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务执行日志' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of schedule_job_log
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for sys_admin
@@ -85,8 +94,8 @@ CREATE TABLE `sys_admin`  (
 -- ----------------------------
 -- Records of sys_admin
 -- ----------------------------
-INSERT INTO `sys_admin` VALUES (1, 'admin', 'https://oss-blog.myjerry.cn/avatar/blog-avatar.jpg', 'e10adc3949ba59abbe56e057f20f883e', 1, '', 0, 'system', 'system', '2020-12-10 22:28:54', '2021-09-27 14:34:28');
-INSERT INTO `sys_admin` VALUES (2, 'test', 'https://oss-blog.myjerry.cn/avatar/blog-avatar.jpg', 'e10adc3949ba59abbe56e057f20f883e', 1, '', 0, 'admin', 'admin', '2020-12-15 17:18:00', '2021-08-31 15:42:42');
+INSERT INTO `sys_admin` VALUES (1, 'admin', 'https://oss-blog.myjerry.cn/files/avatar/blog-avatar.jpg', 'e10adc3949ba59abbe56e057f20f883e', 1, '', 0, 'system', 'system', '2020-12-11 06:28:54', '2021-11-30 18:02:57');
+INSERT INTO `sys_admin` VALUES (2, 'test', 'https://oss-blog.myjerry.cn/files/avatar/blog-avatar.jpg', 'e10adc3949ba59abbe56e057f20f883e', 1, '', 0, 'admin', 'admin', '2020-12-16 01:18:00', '2021-11-29 21:04:03');
 
 -- ----------------------------
 -- Table structure for sys_menu
@@ -114,12 +123,12 @@ CREATE TABLE `sys_menu`  (
 -- ----------------------------
 -- Records of sys_menu
 -- ----------------------------
-INSERT INTO `sys_menu` VALUES (1, 0, '系统管理', 'System', 'layout', 99, 'setting', 'system', '/system/admin', 0, 'admin', 'admin', '2020-12-12 20:42:46', '2020-12-30 15:00:57', 0);
-INSERT INTO `sys_menu` VALUES (3, 1, '账号管理', 'SystemAdmin', 'system/admin', 1, 'user', 'admin', '', 0, 'admin', 'admin', '2020-12-12 20:57:48', '2021-07-28 20:55:19', 0);
-INSERT INTO `sys_menu` VALUES (4, 1, '菜单管理', 'SystemMenu', 'system/menu', 2, 'menu', 'menu', '', 0, 'admin', 'admin', '2020-12-12 20:58:25', '2020-12-30 15:01:00', 0);
-INSERT INTO `sys_menu` VALUES (5, 1, '角色管理', 'SystemRole', 'system/role', 3, 'user', 'role', '', 0, 'admin', 'admin', '2020-12-12 20:59:11', '2021-07-28 20:55:26', 0);
-INSERT INTO `sys_menu` VALUES (6, 0, '任务管理', 'Task', 'layout', 1, 'task', 'task', '/task/schedule', 0, 'admin', 'admin', '2020-12-15 15:13:09', '2020-12-30 15:01:02', 0);
-INSERT INTO `sys_menu` VALUES (7, 6, '定时任务管理', 'TaskSchedule', 'task/schedule', 2, 'schedule', 'schedule', '', 0, 'admin', 'admin', '2020-12-15 15:15:54', '2021-09-18 21:42:22', 0);
+INSERT INTO `sys_menu` VALUES (1, 0, '系统管理', 'System', 'layout', 99, 'setting', 'system', '/system/admin', 0, 'admin', 'admin', '2020-12-13 04:42:46', '2020-12-30 23:00:57', 0);
+INSERT INTO `sys_menu` VALUES (3, 1, '账号管理', 'SystemAdmin', 'system/admin', 1, 'user', 'admin', '', 0, 'admin', 'admin', '2020-12-13 04:57:48', '2021-07-29 04:55:19', 0);
+INSERT INTO `sys_menu` VALUES (4, 1, '菜单管理', 'SystemMenu', 'system/menu', 2, 'menu', 'menu', '', 0, 'admin', 'admin', '2020-12-13 04:58:25', '2020-12-30 23:01:00', 0);
+INSERT INTO `sys_menu` VALUES (5, 1, '角色管理', 'SystemRole', 'system/role', 3, 'user', 'role', '', 0, 'admin', 'admin', '2020-12-13 04:59:11', '2021-07-29 04:55:26', 0);
+INSERT INTO `sys_menu` VALUES (6, 0, '任务管理', 'Task', 'layout', 1, 'task', 'task', '/task/schedule', 0, 'admin', 'admin', '2020-12-15 23:13:09', '2020-12-30 23:01:02', 0);
+INSERT INTO `sys_menu` VALUES (7, 6, '定时任务管理', 'TaskSchedule', 'task/schedule', 2, 'schedule', 'schedule', '', 0, 'admin', 'admin', '2020-12-15 23:15:54', '2021-09-19 05:42:22', 0);
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -139,9 +148,9 @@ CREATE TABLE `sys_role`  (
 -- ----------------------------
 -- Records of sys_role
 -- ----------------------------
-INSERT INTO `sys_role` VALUES (1, '超级管理员', '拥有系统所有权限', 'admin', 'admin', '2020-12-12 20:55:17', '2021-09-03 16:56:58');
-INSERT INTO `sys_role` VALUES (2, '运营', '运营角色', 'admin', 'admin', '2020-12-15 17:08:16', '2020-12-15 17:08:16');
-INSERT INTO `sys_role` VALUES (3, '业务员', '业务员', 'admin', 'admin', '2021-09-16 22:06:59', '2021-09-18 09:06:37');
+INSERT INTO `sys_role` VALUES (1, '超级管理员', '拥有系统所有权限', 'admin', 'admin', '2020-12-13 04:55:17', '2021-09-04 00:56:58');
+INSERT INTO `sys_role` VALUES (2, '运营', '运营角色', 'admin', 'admin', '2020-12-16 01:08:16', '2020-12-16 01:08:16');
+INSERT INTO `sys_role` VALUES (3, '业务员', '业务员', 'admin', 'admin', '2021-09-17 06:06:59', '2021-09-18 17:06:37');
 
 -- ----------------------------
 -- Table structure for sys_roles_menus
