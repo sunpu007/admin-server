@@ -28,6 +28,8 @@ module.exports = appInfo => {
 
   config.contextPath = '/api';
 
+  config.proxy = true;
+
   /** 启动端口配置 */
   config.cluster = {
     listen: {
