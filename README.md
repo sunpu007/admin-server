@@ -26,6 +26,8 @@ $ npm stop
 ### Docker Deploy
 
 ```bash
+# 构建镜像
+docker build -t `镜像名` .
 # 由于在项目中使用了hosts,所以需要需要在启动的时候追加数据库指向,也可在项目配置中将其修改成IP
 docker run -itd --net=host --name admin-server --add-host=adminDemodb:<数据库地址> admin-server
 ```
