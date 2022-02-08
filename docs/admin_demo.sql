@@ -36,13 +36,13 @@ CREATE TABLE `schedule_job`  (
   PRIMARY KEY (`job_id`) USING BTREE,
   UNIQUE INDEX `key_id`(`job_id`) USING BTREE,
   INDEX `key_handler`(`jobHandler`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of schedule_job
 -- ----------------------------
 INSERT INTO `schedule_job` VALUES (1, '*/5 * * * * *', 'test1', 'testHandler', '', '', -1, 'admin', 'admin', '2020-12-15 23:22:15', '2021-09-27 22:44:56');
-INSERT INTO `schedule_job` VALUES (6, '0 0 * * * *', 'testCurl', 'testCurlHandler', '{\n\"url\": \"https://www.myjerry.cn\",\n\"method\": \"get\",\n\"data\": { \"id\": 1 }\n}', '调用接口', -1, 'admin', 'admin', '2021-09-03 18:32:32', '2021-11-29 21:02:15');
+INSERT INTO `schedule_job` VALUES (2, '0 0 * * * *', 'testCurl', 'testCurlHandler', '{\n\"url\": \"https://www.myjerry.cn\",\n\"method\": \"get\",\n\"data\": { \"id\": 1 }\n}', '调用接口', -1, 'admin', 'admin', '2021-09-03 18:32:32', '2021-11-29 21:02:15');
 
 -- ----------------------------
 -- Table structure for schedule_job_log
@@ -67,10 +67,6 @@ CREATE TABLE `schedule_job_log`  (
   INDEX `key_execution_status`(`execution_status`) USING BTREE,
   INDEX `key_trigger_type`(`trigger_type`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务执行日志' ROW_FORMAT = DYNAMIC;
-
--- ----------------------------
--- Records of schedule_job_log
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for sys_admin
