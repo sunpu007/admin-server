@@ -28,8 +28,9 @@ class TaskService extends Service {
   // 修改/新增定时任务
   async editSchedule(userName, { job_id, cron, jobName, jobHandler, params = '', description = '' }) {
     // 判断
-    const result = await this.app.mysql.get('schedule_job', { jobHandler });
-    if (!result) throw new GlobalError(RESULT_FAIL, '任务处理程序不存在，请重新输入');
+    // const jobInfo = await this.app.mysql.get('schedule_job', { jobHandler });
+    const jobInfo = this.service.scheduleService[jobHandler];
+    if (!jobInfo) throw new GlobalError(RESULT_FAIL, '任务处理程序不存在，请重新输入');
     if (!job_id) {
       // 新增
       await this.app.mysql.insert('schedule_job', {
