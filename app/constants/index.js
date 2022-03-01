@@ -21,7 +21,12 @@ const CONSTANTS = {
     RUN: 0,
     // 执行完成
     END: 1,
-  }
+  },
+  // 运行模式
+  SCHEDULE_RUN_MODE: {
+    BEAN: 0,
+    SHELL: 1,
+  },
 };
 
 module.exports = CONSTANTS;
