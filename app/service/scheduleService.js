@@ -6,6 +6,7 @@ class ScheduleService extends Service {
   /**
    * 测试处理程序
    * @param {*} params 任务参数
+   * @param {*} jobHandlerLog 日志
    */
   async testHandler(params, jobHandlerLog) {
     // 此处替换成具体业务代码
@@ -15,6 +16,7 @@ class ScheduleService extends Service {
   /**
    * 测试调用接口任务
    * @param {*} params 任务参数
+   * @param {*} jobHandlerLog 日志
    */
   async testCurlHandler(params, jobHandlerLog) {
     // 获取参数

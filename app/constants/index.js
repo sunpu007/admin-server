@@ -8,7 +8,7 @@ const CONSTANTS = {
     // 停止
     STOP: -1,
   },
-  // 定时任务出发类型
+  // 定时任务触发类型
   SCHEDULE_TRIGGER_TYPE: {
     // 任务触发
     TASK: 0,

@@ -4,7 +4,7 @@ const schedule = require('node-schedule');
 const NodeUUID = require('node-uuid');
 const JobHandlerLog = require('../utils/JobHandlerLog');
 const { SCHEDULE_STACKS } = require('../constants/redis');
-const { SCHEDULE_STATUS, SCHEDULE_RUN_MODE } = require('../constants');
+const { SCHEDULE_STATUS, SCHEDULE_RUN_MODE, SCHEDULE_TRIGGER_TYPE } = require('../constants');
 
 module.exports = {
   /**
@@ -21,41 +21,7 @@ module.exports = {
     // 生成任务唯一值
     const uuid = NodeUUID.v4();
     this.app.scheduleStacks[jobName] = schedule.scheduleJob(uuid, cron, async () => {
-      // 读取锁,保证一个任务同时只能有一个进程执行
-      const locked = await this.app.redlock.lock('sendAllUserBroadcast:' + id, 'sendAllUserBroadcast', 180);
-      if (!locked) return false;
-
-      const jobHandlerLog = new JobHandlerLog(this.app);
-
-      try {
-        // 获取任务信息
-        const schedule = await this.app.mysql.get('schedule_job', { job_id: id });
-
-        // 判断任务状态
-        if (schedule.status === SCHEDULE_STATUS.STOP) {
-          // 当任务处于停止状态时，取消当前执行
-          // 任务容错，防止用户在调用停止接口时不是当前worker
-          await this.cancelSchedule(jobName);
-          await this.logger.info('执行任务`%s`时，任务状态为停止状态');
-        } else {
-          // 执行日志初始化
-          await jobHandlerLog.init(schedule);
-
-          if (schedule.runMode === SCHEDULE_RUN_MODE.BEAN) {
-            // 调用任务方法
-            await this.service.scheduleService[jobHandler](schedule.params, jobHandlerLog);
-          }
-        }
-      } catch (error) {
-        await this.logger.info('执行任务`%s`失败，时间：%s, 错误信息：%j', jobName, new Date().toLocaleString(), error);
-        // 记录失败日志
-        await jobHandlerLog.error('执行任务`{0}`失败，时间：{1}, 错误信息：{2}', jobName, new Date().toLocaleString(), error);
-      } finally {
-        // 释放锁
-        await this.app.redlock.unlock('sendAllUserBroadcast:' + id);
-        // 更新日志记录状态
-        await jobHandlerLog.end();
-      }
+      await this.executeSchedule(id);
     });
     await this.app.redis.set(`${SCHEDULE_STACKS}${uuid}`, `${jobName}-${Date.now()}`);
   },
@@ -67,5 +33,51 @@ module.exports = {
     this.ctx.logger.info('[取消定时任务]，任务名：%s', jobName);
     await this.app.redis.del(`${SCHEDULE_STACKS}${this.app.scheduleStacks[jobName].name}`);
     this.app.scheduleStacks[jobName] && this.app.scheduleStacks[jobName].cancel();
+  },
+  /**
+   * 执行任务
+   * @param {*} id 任务ID
+   * @param {*} checkLocked 是否单一执行
+   * @param {*} checkStatus 是否判断当前状态
+   * @param {*} triggerType 触发类型
+   */
+  async executeSchedule(id, checkLocked = true, checkStatus = true, triggerType = SCHEDULE_TRIGGER_TYPE.TASK) {
+    // 读取锁,保证一个任务同时只能有一个进程执行
+    if (checkLocked) {
+      const locked = await this.app.redlock.lock('sendAllUserBroadcast:' + id, 'sendAllUserBroadcast', 180);
+      if (!locked) return false;
+    }
+
+    const jobHandlerLog = new JobHandlerLog(this.app);
+
+    try {
+      // 获取任务信息
+      const schedule = await this.app.mysql.get('schedule_job', { job_id: id });
+
+      // 判断任务状态
+      if (schedule.status === SCHEDULE_STATUS.STOP && checkStatus) {
+        // 当任务处于停止状态时，取消当前执行
+        // 任务容错，防止用户在调用停止接口时不是当前worker
+        await this.cancelSchedule(schedule.jobName);
+        await this.logger.info('执行任务`%s`时，任务状态为停止状态');
+      } else {
+        // 执行日志初始化
+        await jobHandlerLog.init(schedule, triggerType);
+
+        if (schedule.runMode === SCHEDULE_RUN_MODE.BEAN) {
+          // 调用任务方法
+          await this.service.scheduleService[schedule.jobHandler](schedule.params, jobHandlerLog);
+        }
+      }
+    } catch (error) {
+      await this.logger.info('执行任务`%s`失败，时间：%s, 错误信息：%j', schedule.jobName, new Date().toLocaleString(), error);
+      // 记录失败日志
+      await jobHandlerLog.error('执行任务`{0}`失败，时间：{1}, 错误信息：{2}', schedule.jobName, new Date().toLocaleString(), error);
+    } finally {
+      // 释放锁
+      checkLocked && await this.app.redlock.unlock('sendAllUserBroadcast:' + id);
+      // 更新日志记录状态
+      await jobHandlerLog.end();
+    }
   },
 };

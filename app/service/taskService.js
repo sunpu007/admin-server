@@ -4,7 +4,6 @@ const { Service } = require('egg');
 const { SCHEDULE_STATUS, SCHEDULE_TRIGGER_TYPE, SCHEDULE_RUN_MODE } = require('../constants');
 const { RESULT_FAIL } = require('../constants/result');
 const GlobalError = require('../utils/GlobalError');
-const JobHandlerLog = require('../utils/JobHandlerLog');
 
 /**
  * task Service
@@ -100,24 +99,7 @@ class TaskService extends Service {
     const schedule = await this.app.mysql.get('schedule_job', { job_id });
     if (schedule === null) throw new GlobalError(RESULT_FAIL, '任务不存在');
 
-    const jobHandlerLog = new JobHandlerLog(this.app);
-
-    try {
-      // 执行日志初始化
-      await jobHandlerLog.init(schedule, SCHEDULE_TRIGGER_TYPE.MANUAL);
-
-      // 执行任务
-      if (schedule.runMode === SCHEDULE_RUN_MODE.BEAN) {
-        this.service.scheduleService[schedule.jobHandler](schedule.params, jobHandlerLog);
-      }
-    } catch (error) {
-      await this.logger.info('执行任务`%s`失败，时间：%s, 错误信息：%j', schedule.jobName, new Date().toLocaleString(), error);
-      // 记录失败日志
-      await jobHandlerLog.error('执行任务`{0}`失败，时间：{1}, 错误信息：{2}', schedule.jobName, new Date().toLocaleString(), error);
-    } finally {
-      // 更新日志记录状态
-      await jobHandlerLog.end();
-    }
+    await this.ctx.helper.executeSchedule(job_id, false, false, SCHEDULE_TRIGGER_TYPE.MANUAL);
   }
   // 获取任务执行日志
   async scheduleLogList({ job_id, page = 1, size = 20 }) {
