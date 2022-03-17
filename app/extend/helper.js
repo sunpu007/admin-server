@@ -1,5 +1,7 @@
 'use strict';
 
+const fs = require('fs')
+const { spawn } = require('child_process');
 const schedule = require('node-schedule');
 const NodeUUID = require('node-uuid');
 const JobHandlerLog = require('../utils/JobHandlerLog');
@@ -50,10 +52,10 @@ module.exports = {
 
     const jobHandlerLog = new JobHandlerLog(this.app);
 
-    try {
-      // 获取任务信息
-      const schedule = await this.app.mysql.get('schedule_job', { job_id: id });
+    // 获取任务信息
+    const schedule = await this.app.mysql.get('schedule_job', { job_id: id });
 
+    try {
       // 判断任务状态
       if (schedule.status === SCHEDULE_STATUS.STOP && checkStatus) {
         // 当任务处于停止状态时，取消当前执行
@@ -67,6 +69,9 @@ module.exports = {
         if (schedule.runMode === SCHEDULE_RUN_MODE.BEAN) {
           // 调用任务方法
           await this.service.scheduleService[schedule.jobHandler](schedule.params, jobHandlerLog);
+        } else if (schedule.runMode === SCHEDULE_RUN_MODE.SHELL) {
+          // 执行脚本文件
+          await this.execScript(schedule, jobHandlerLog);
         }
       }
     } catch (error) {
@@ -79,5 +84,40 @@ module.exports = {
       // 更新日志记录状态
       await jobHandlerLog.end();
     }
+  },
+  /**
+   * 执行脚本文件
+   * @param {*} schedule 任务信息
+   * @param {*} jobHandlerLog 日志
+   */
+  async execScript(schedule, jobHandlerLog) {
+    return new Promise((resolve, reject) => {
+      // 创建脚本临时文件
+      const filePath = '/tmp/task' + schedule.job_id + Date.now() + '.sh';
+      try {
+        // 写入文件
+        fs.writeFileSync(filePath, schedule.runSource);
+        // 处理用户参数
+        const params = schedule.params.split(',');
+        // 执行脚本
+        const ls = spawn('/bin/bash', [ filePath, ...params ]);
+        // 监听输出
+        ls.stdout.on('data', data => {
+          jobHandlerLog.log(data);
+        });
+
+        ls.on('close', () => {
+          resolve();
+        });
+        // 监听异常
+        ls.on('exit', code => {
+          if (code !== 0) reject(new Error(code));
+          fs.unlinkSync(filePath);
+        });
+      } catch (err) {
+        fs.unlinkSync(filePath);
+        throw new Error(err);
+      }
+    });
   },
 };
