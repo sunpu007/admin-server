@@ -93,7 +93,8 @@ module.exports = {
   async execScript(schedule, jobHandlerLog) {
     return new Promise((resolve, reject) => {
       // 创建脚本临时文件
-      const filePath = '/tmp/task' + schedule.job_id + Date.now() + '.sh';
+      // /tmp
+      const filePath = './task' + schedule.job_id + Date.now() + '.sh';
       try {
         // 写入文件
         fs.writeFileSync(filePath, schedule.runSource);
