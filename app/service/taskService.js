@@ -1,10 +1,9 @@
 'use strict';
 
 const { Service } = require('egg');
-const { SCHEDULE_STATUS, SCHEDULE_TRIGGER_TYPE } = require('../constants');
+const { SCHEDULE_STATUS, SCHEDULE_TRIGGER_TYPE, SCHEDULE_RUN_MODE } = require('../constants');
 const { RESULT_FAIL } = require('../constants/result');
 const GlobalError = require('../utils/GlobalError');
-const JobHandlerLog = require('../utils/JobHandlerLog');
 
 /**
  * task Service
@@ -26,17 +25,19 @@ class TaskService extends Service {
     return { list, total };
   }
   // 修改/新增定时任务
-  async editSchedule(userName, { job_id, cron, jobName, jobHandler, params = '', description = '' }) {
+  async editSchedule(userName, { job_id, cron, jobName, runMode, jobHandler = '', runSource = '', params = '', description = '' }) {
     // 判断
     // const jobInfo = await this.app.mysql.get('schedule_job', { jobHandler });
     const jobInfo = this.service.scheduleService[jobHandler];
-    if (!jobInfo) throw new GlobalError(RESULT_FAIL, '任务处理程序不存在，请重新输入');
+    if (!jobInfo && runMode === SCHEDULE_RUN_MODE.BEAN) throw new GlobalError(RESULT_FAIL, '任务处理程序不存在，请重新输入');
     if (!job_id) {
       // 新增
       await this.app.mysql.insert('schedule_job', {
         cron,
         jobName,
+        runMode,
         jobHandler,
+        runSource,
         description,
         params,
         create_by: userName,
@@ -98,21 +99,7 @@ class TaskService extends Service {
     const schedule = await this.app.mysql.get('schedule_job', { job_id });
     if (schedule === null) throw new GlobalError(RESULT_FAIL, '任务不存在');
 
-    const jobHandlerLog = new JobHandlerLog(this.app);
-
-    try {
-      // 执行日志初始化
-      await jobHandlerLog.init(schedule, SCHEDULE_TRIGGER_TYPE.MANUAL)
-      // 执行任务
-      this.service.scheduleService[schedule.jobHandler](schedule.params, jobHandlerLog); 
-    } catch (error) {
-      await this.logger.info('执行任务`%s`失败，时间：%s, 错误信息：%j', schedule.jobName, new Date().toLocaleString(), error);
-      // 记录失败日志
-      await jobHandlerLog.error('执行任务`{0}`失败，时间：{1}, 错误信息：{2}', schedule.jobName, new Date().toLocaleString(), error);
-    } finally {
-      // 更新日志记录状态
-      await jobHandlerLog.end();
-    }
+    await this.ctx.helper.executeSchedule(job_id, false, false, SCHEDULE_TRIGGER_TYPE.MANUAL);
   }
   // 获取任务执行日志
   async scheduleLogList({ job_id, page = 1, size = 20 }) {
