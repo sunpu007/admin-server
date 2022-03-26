@@ -24,9 +24,10 @@ class ScheduleService extends Service {
     const result = await this.ctx.curl(paramsObj.url, {
       method: paramsObj.method,
       data: paramsObj.data,
+      dataType: 'json',
     });
     await jobHandlerLog.log('测试调用接口任务，状态码：{0}', result.status);
-    // await this.logger.info('测试调用接口任务，状态码：%d，返回值：%j', result.status);
+    await jobHandlerLog.log('测试调用接口任务，响应数据：{0}', JSON.stringify(result.data));
   }
 }
 
