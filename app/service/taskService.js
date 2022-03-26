@@ -51,7 +51,9 @@ class TaskService extends Service {
     const result = await this.app.mysql.update('schedule_job', {
       cron,
       jobName,
+      runMode,
       jobHandler,
+      runSource,
       description,
       params,
       update_by: userName,

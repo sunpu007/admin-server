@@ -11,14 +11,6 @@ class WsController extends Controller {
       throw new Error('this function can only be use in websocket router');
     }
 
-    // ctx.websocket
-    //   .on('message', (msg) => {
-    //     console.log('receive', msg);
-    //   })
-    //   .on('close', (code, reason) => {
-    //     console.log('websocket closed', code, reason);
-    //   });
-
     let useCpu = await cpu();
     let useMem = await mem();
     let _sys = await sys();
