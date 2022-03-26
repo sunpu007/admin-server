@@ -1,6 +1,6 @@
 'use strict';
 
-const fs = require('fs')
+const fs = require('fs');
 const { spawn } = require('child_process');
 const schedule = require('node-schedule');
 const NodeUUID = require('node-uuid');
