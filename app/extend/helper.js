@@ -99,7 +99,7 @@ module.exports = {
         // 写入文件
         fs.writeFileSync(filePath, schedule.runSource);
         // 处理用户参数
-        const params = schedule.params.split(',');
+        const params = schedule.params ? schedule.params.split(',') : [];
         // 执行脚本
         const ls = spawn('/bin/bash', [ filePath, ...params ]);
         // 监听输出
