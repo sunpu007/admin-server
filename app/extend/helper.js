@@ -107,17 +107,23 @@ module.exports = {
           jobHandlerLog.log(data);
         });
 
+        ls.on('error', data => {
+          jobHandlerLog.error(JSON.stringify(data));
+          resolve(new Error(data));
+        });
+
         ls.on('close', () => {
           resolve();
         });
         // 监听异常
         ls.on('exit', code => {
+          jobHandlerLog.error(code);
           if (code !== 0) reject(new Error(code));
-          fs.unlinkSync(filePath);
         });
       } catch (err) {
-        fs.unlinkSync(filePath);
         throw new Error(err);
+      } finally {
+        fs.unlinkSync(filePath);
       }
     });
   },
