@@ -117,8 +117,11 @@ module.exports = {
         });
         // 监听异常
         ls.on('exit', code => {
-          jobHandlerLog.error(code);
-          if (code !== 0) reject(new Error(code));
+          if (code !== 0) {
+            jobHandlerLog.error(code);
+            reject(new Error(code));
+          }
+          resolve();
         });
       } catch (err) {
         throw new Error(err);
