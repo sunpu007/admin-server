@@ -118,10 +118,10 @@ class TaskService extends Service {
     return { list, total };
   }
   // 获取任务执行日志详细信息
-  async scheduleLogDateil({ id }) {
-    const result = await this.app.mysql.get('schedule_job_log', { id })
+  async scheduleLogDateil({ id, error }) {
+    const result = await this.app.mysql.get('schedule_job_log', { id });
 
-    return { detail: result.job_log, executionStatus: result.execution_status };
+    return { detail: !error ? result.job_log : result.error_log, executionStatus: result.execution_status };
   }
 }
 
