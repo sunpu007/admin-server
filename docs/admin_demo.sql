@@ -11,7 +11,7 @@
  Target Server Version : 50736
  File Encoding         : 65001
 
- Date: 18/03/2022 16:55:08
+ Date: 26/04/2022 11:38:08
 */
 
 SET NAMES utf8mb4;
@@ -35,18 +35,19 @@ CREATE TABLE `schedule_job` (
   `update_by` varchar(100) NOT NULL COMMENT '更新人',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `is_delete` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除：0:未删除 -1:删除',
   PRIMARY KEY (`job_id`) USING BTREE,
   UNIQUE KEY `ind_id` (`job_id`) USING BTREE,
   KEY `ind_handler` (`jobHandler`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='定时任务表';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='定时任务表';
 
 -- ----------------------------
 -- Records of schedule_job
 -- ----------------------------
 BEGIN;
-INSERT INTO `schedule_job` VALUES (7, '0 0 * * * *', 'testCurlHandler', 'testCurlHandler', '{\n    \"url\": \"https://www.myjerry.cn\",\n    \"method\": \"GET\",\n    \"data\": {}\n}', '', 0, '', -1, 'admin', 'admin', '2022-01-21 19:10:08', '2022-03-18 07:03:47');
-INSERT INTO `schedule_job` VALUES (13, '*/5 * * * * *', 'testHandler', 'testHandler', '', '', 0, NULL, -1, 'admin', 'admin', '2022-03-08 16:37:45', '2022-03-18 07:03:46');
-INSERT INTO `schedule_job` VALUES (14, '0 0 0 0 0 0', 'testShell', '', 'hello,Jerry', '', 1, '#!/bin/bash\necho $1\necho $2\nexit 0', -1, 'admin', 'admin', '2022-03-17 17:27:03', '2022-03-18 16:43:46');
+INSERT INTO `schedule_job` VALUES (1, '*/5 * * * * *', 'testHandler', 'testHandler', '', '', 0, '', -1, 'admin', 'admin', '2022-04-26 11:19:52', '2022-04-26 11:35:18', 0);
+INSERT INTO `schedule_job` VALUES (2, '0 0 0 * * *', 'testCurlHandler', 'testCurlHandler', '{\n    \"url\": \"http://daodi-herbs.com/more_system/demo.php\",\n    \"method\": \"POST\",\n    \"data\": {\n        \"name\": \"XXX\",\n        \"address\": \"123\"\n    }\n}', '', 0, '', -1, 'admin', 'admin', '2022-01-21 19:10:08', '2022-04-26 11:23:14', 0);
+INSERT INTO `schedule_job` VALUES (3, '0 0 0 * * *', 'testShell', '', 'wq21', '123213', 1, '#!/bin/sh\n\n# 由于当前实现原因，接受参数应从第二位开始\n\nnode -v\n\nnpm -v\n\necho \"hello shell\"\n\nexit 0', -1, 'admin', 'admin', '2022-03-26 22:57:45', '2022-04-26 11:27:06', 0);
 COMMIT;
 
 -- ----------------------------
@@ -61,7 +62,7 @@ CREATE TABLE `schedule_job_log` (
   `handle_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '任务执行时间',
   `job_log` text NOT NULL COMMENT '任务日志',
   `job_status` int(1) NOT NULL DEFAULT '0' COMMENT '任务执行状态：0-成功 -1-失败',
-  `error_log` varchar(255) NOT NULL DEFAULT '' COMMENT '任务异常日志',
+  `error_log` text NOT NULL COMMENT '任务异常日志',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `trigger_type` int(1) NOT NULL DEFAULT '0' COMMENT '触发类型：0-任务触发 1-手动触发',
   `execution_status` int(1) NOT NULL DEFAULT '0' COMMENT '任务状态：0-执行中 1-执行完成',
@@ -71,7 +72,7 @@ CREATE TABLE `schedule_job_log` (
   KEY `ind_job_status` (`job_status`),
   KEY `ind_execution_status` (`execution_status`),
   KEY `ind_trigger_type` (`trigger_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=81485 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='定时任务执行日志';
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='定时任务执行日志';
 
 -- ----------------------------
 -- Records of schedule_job_log
@@ -102,7 +103,7 @@ CREATE TABLE `sys_admin` (
 -- Records of sys_admin
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_admin` VALUES (1, 'admin', 'https://oss-blog.myjerry.cn/files/avatar/blog-avatar.jpg', 'e10adc3949ba59abbe56e057f20f883e', 1, '', 0, 'system', 'system', '2020-12-11 06:28:54', '2022-03-18 16:36:21');
+INSERT INTO `sys_admin` VALUES (1, 'admin', 'https://oss-blog.myjerry.cn/files/avatar/blog-avatar.jpg', 'e10adc3949ba59abbe56e057f20f883e', 1, '', 0, 'system', 'system', '2020-12-11 06:28:54', '2022-04-26 11:15:22');
 COMMIT;
 
 -- ----------------------------
@@ -158,11 +159,11 @@ CREATE TABLE `sys_menu` (
 -- ----------------------------
 BEGIN;
 INSERT INTO `sys_menu` VALUES (1, 0, '系统管理', 'System', 'layout', 99, 'setting', 'system', '/system/admin', 0, 'admin', 'admin', '2020-12-13 04:42:46', '2020-12-30 23:00:57', 0);
-INSERT INTO `sys_menu` VALUES (3, 1, '账号管理', 'SystemAdmin', 'system/admin', 1, 'user', 'admin', '', 0, 'admin', 'admin', '2020-12-13 04:57:48', '2021-07-29 04:55:19', 0);
-INSERT INTO `sys_menu` VALUES (4, 1, '菜单管理', 'SystemMenu', 'system/menu', 2, 'menu', 'menu', '', 0, 'admin', 'admin', '2020-12-13 04:58:25', '2020-12-30 23:01:00', 0);
+INSERT INTO `sys_menu` VALUES (3, 1, '账号管理', 'SystemAdmin', 'system/admin', 1, 'eye-open', 'admin', '', 0, 'admin', 'admin', '2020-12-13 04:57:48', '2022-03-29 12:03:49', 0);
+INSERT INTO `sys_menu` VALUES (4, 1, '菜单管理', 'SystemMenu', 'system/menu', 2, 'menu', 'menu', '', -1, 'admin', 'admin', '2020-12-13 04:58:25', '2022-04-09 03:35:16', 0);
 INSERT INTO `sys_menu` VALUES (5, 1, '角色管理', 'SystemRole', 'system/role', 3, 'user', 'role', '', 0, 'admin', 'admin', '2020-12-13 04:59:11', '2021-07-29 04:55:26', 0);
 INSERT INTO `sys_menu` VALUES (6, 0, '任务管理', 'Task', 'layout', 1, 'task', 'task', '/task/schedule', 0, 'admin', 'admin', '2020-12-15 23:13:09', '2022-01-20 12:41:13', 0);
-INSERT INTO `sys_menu` VALUES (7, 6, '定时任务管理', 'TaskSchedule', 'task/schedule', 2, 'schedule', 'schedule', '', 0, 'admin', 'admin', '2020-12-15 23:15:54', '2021-09-19 05:42:22', 0);
+INSERT INTO `sys_menu` VALUES (7, 6, '定时任务管理', 'TaskSchedule', 'task/schedule', 2, 'schedule', 'schedule', '', 0, 'admin', 'admin', '2020-12-15 23:15:54', '2022-04-02 17:49:12', 0);
 COMMIT;
 
 -- ----------------------------
@@ -178,7 +179,7 @@ CREATE TABLE `sys_role` (
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`role_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='角色表';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='角色表';
 
 -- ----------------------------
 -- Records of sys_role
@@ -188,6 +189,7 @@ INSERT INTO `sys_role` VALUES (1, '超级管理员', '拥有系统所有权限',
 INSERT INTO `sys_role` VALUES (2, '运营', '运营角色', 'admin', 'admin', '2020-12-16 01:08:16', '2021-11-30 17:00:39');
 INSERT INTO `sys_role` VALUES (3, '业务员', '业务员', 'admin', 'admin', '2021-09-17 06:06:59', '2021-09-18 17:06:37');
 INSERT INTO `sys_role` VALUES (4, '1', '1', 'admin', 'admin', '2021-12-22 10:04:33', '2021-12-22 10:04:33');
+INSERT INTO `sys_role` VALUES (5, 'v', '方法', 'admin', 'admin', '2022-04-25 12:00:02', '2022-04-25 12:00:02');
 COMMIT;
 
 -- ----------------------------
@@ -211,6 +213,8 @@ INSERT INTO `sys_roles_menus` VALUES (7, 2);
 INSERT INTO `sys_roles_menus` VALUES (7, 3);
 INSERT INTO `sys_roles_menus` VALUES (4, 3);
 INSERT INTO `sys_roles_menus` VALUES (5, 3);
+INSERT INTO `sys_roles_menus` VALUES (4, 4);
+INSERT INTO `sys_roles_menus` VALUES (5, 4);
 COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;

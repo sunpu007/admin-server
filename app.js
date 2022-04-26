@@ -1,6 +1,6 @@
 'use strict';
 
-const { SCHEDULE_STATUS } = require('./app/constants');
+const { SCHEDULE_STATUS, SCHEDULE_DELETE } = require('./app/constants');
 
 class AppBootHook {
   constructor(app) {
@@ -11,7 +11,7 @@ class AppBootHook {
   async willReady() {
     await this.app.logger.info('【初始化定时任务】开始...');
     // 查询启动状态的定时任务
-    const schedules = await this.app.mysql.select('schedule_job', { where: { status: SCHEDULE_STATUS.RUN } });
+    const schedules = await this.app.mysql.select('schedule_job', { where: { status: SCHEDULE_STATUS.RUN, is_delete: SCHEDULE_DELETE.MANUAL } });
     // 循环注册定时任务
     schedules.forEach(async schedule => {
       await this.app.logger.info('【注册job】name：%s, handler: %s', schedule.jobName, schedule.jobHandler);
