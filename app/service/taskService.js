@@ -1,7 +1,7 @@
 'use strict';
 
 const { Service } = require('egg');
-const { SCHEDULE_STATUS, SCHEDULE_TRIGGER_TYPE, SCHEDULE_RUN_MODE } = require('../constants');
+const { SCHEDULE_STATUS, SCHEDULE_TRIGGER_TYPE, SCHEDULE_RUN_MODE, SCHEDULE_DELETE } = require('../constants');
 const { RESULT_FAIL } = require('../constants/result');
 const GlobalError = require('../utils/GlobalError');
 
@@ -16,6 +16,7 @@ class TaskService extends Service {
 
     const [ list, total ] = await Promise.all([
       this.app.mysql.select('schedule_job', {
+        where: { is_delete: SCHEDULE_DELETE.MANUAL },
         orders: [[ 'create_time', 'desc' ]],
         limit,
         offset,
@@ -72,14 +73,9 @@ class TaskService extends Service {
   }
   // 删除定时任务
   async deleteSchedule({ job_id }) {
-    const result = await this.app.mysql.delete('schedule_job', { job_id });
-    if (result.affectedRows === 1) {
-      const schedule = await this.app.mysql.get('schedule_job', { job_id });
-      if (schedule.status === SCHEDULE_STATUS.RUN) {
-        // 停止任务
-        await this.ctx.helper.cancelSchedule(schedule.jobName);
-      }
-    }
+    const schedule = await this.app.mysql.get('schedule_job', { job_id });
+    if (schedule.status === SCHEDULE_STATUS.RUN) throw new GlobalError(RESULT_FAIL, '任务再运行中，如需删除请先停止任务');
+    await this.app.mysql.update('schedule_job', { is_delete: SCHEDULE_DELETE.DELETE }, { where: { job_id } });
   }
   // 更新定时任务状态
   async updateStatusSchedule({ job_id, status }) {

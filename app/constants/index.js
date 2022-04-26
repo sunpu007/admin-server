@@ -27,6 +27,13 @@ const CONSTANTS = {
     BEAN: 0,
     SHELL: 1,
   },
+  // 任务删除状态
+  SCHEDULE_DELETE: {
+    // 删除
+    DELETE: -1,
+    // 正常
+    MANUAL: 0,
+  }
 };
 
 module.exports = CONSTANTS;
