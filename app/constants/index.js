@@ -33,7 +33,11 @@ const CONSTANTS = {
     DELETE: -1,
     // 正常
     MANUAL: 0,
-  }
+  },
+  ACTIVE_KYES: {
+    STOP_SCHEDULS: 'stop_schedule',
+    RUN_SCHEDULS: 'run_schedule',
+  },
 };
 
 module.exports = CONSTANTS;
