@@ -1,7 +1,7 @@
 'use strict';
 
 const { Service } = require('egg');
-const { SCHEDULE_STATUS, SCHEDULE_TRIGGER_TYPE, SCHEDULE_RUN_MODE, SCHEDULE_DELETE } = require('../constants');
+const { SCHEDULE_STATUS, SCHEDULE_TRIGGER_TYPE, SCHEDULE_RUN_MODE, SCHEDULE_DELETE, ACTIVE_KYES } = require('../constants');
 const { RESULT_FAIL } = require('../constants/result');
 const GlobalError = require('../utils/GlobalError');
 
@@ -48,8 +48,11 @@ class TaskService extends Service {
       });
       return;
     }
+    // 修改时先判断任务状态
+    const schedule = await this.app.mysql.get('schedule_job', { job_id });
+    if (schedule && schedule.status === SCHEDULE_STATUS.RUN) throw new GlobalError(RESULT_FAIL, '任务正在运行中，请停止后修改');
     // 修改
-    const result = await this.app.mysql.update('schedule_job', {
+    await this.app.mysql.update('schedule_job', {
       cron,
       jobName,
       runMode,
@@ -61,15 +64,16 @@ class TaskService extends Service {
       update_time: new Date(),
     }, { where: { job_id } });
 
-    if (result.affectedRows === 1) {
-      const schedule = await this.app.mysql.get('schedule_job', { job_id });
-      // 此处在版本允许的情况下可使用可选链操作符`?`
-      if (schedule && schedule.status === SCHEDULE_STATUS.RUN) {
-        // 启动状态下重置任务
-        await this.ctx.helper.cancelSchedule(jobName);
-        await this.ctx.helper.generateSchedule(job_id, cron, jobName, jobHandler);
-      }
-    }
+    // if (result.affectedRows === 1) {
+    //   const schedule = await this.app.mysql.get('schedule_job', { job_id });
+    //   this.app.messenger.sendToApp(ACTIVE_KYES.UPDATE_SCHEDULS, schedule);
+    //   // 此处在版本允许的情况下可使用可选链操作符`?`
+    //   if (schedule && schedule.status === SCHEDULE_STATUS.RUN) {
+    //     // 启动状态下重置任务
+    //     await this.ctx.helper.cancelSchedule(jobName);
+    //     await this.ctx.helper.generateSchedule(job_id, cron, jobName, jobHandler);
+    //   }
+    // }
   }
   // 删除定时任务
   async deleteSchedule({ job_id }) {
@@ -85,10 +89,12 @@ class TaskService extends Service {
       const schedule = await this.app.mysql.get('schedule_job', { job_id });
       if (status === SCHEDULE_STATUS.RUN) {
         // 启动任务
-        await this.ctx.helper.generateSchedule(job_id, schedule.cron, schedule.jobName, schedule.jobHandler);
+        // await this.ctx.helper.generateSchedule(job_id, schedule.cron, schedule.jobName, schedule.jobHandler);
+        this.app.messenger.sendToApp(ACTIVE_KYES.RUN_SCHEDULS, schedule);
       } else {
         // 停止任务
-        await this.ctx.helper.cancelSchedule(schedule.jobName);
+        // await this.ctx.helper.cancelSchedule(schedule.jobName);
+        this.app.messenger.sendToApp(ACTIVE_KYES.STOP_SCHEDULS, schedule);
       }
     }
   }
