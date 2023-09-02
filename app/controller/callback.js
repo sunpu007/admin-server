@@ -13,7 +13,7 @@ class CallbackController extends Controller {
    */
   async huawei() {
     const { ctx } = this;
-    ctx.logger('【华为回调】内容：', ctx.request.body);
+    ctx.app.logger('【华为回调】内容：', ctx.request.body);
     ctx.body = { code: 0, message: 'success' };
   }
 }
