@@ -14,6 +14,20 @@ class CallbackController extends Controller {
     const { ctx } = this;
     ctx.body = { code: 0, message: 'success' };
   }
+  /**
+   * vivo回调
+   */
+  async vivo() {
+    const { ctx } = this;
+    ctx.body = { code: 0, message: 'success' };
+  }
+  /**
+   * meizu回调
+   */
+  async meizu() {
+    const { ctx } = this;
+    ctx.body = { code: 0, message: 'success' };
+  }
 }
 
 module.exports = CallbackController;
