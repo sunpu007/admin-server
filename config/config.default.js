@@ -55,7 +55,7 @@ module.exports = appInfo => {
       // 用户名
       user: 'admin_demo_user',
       // 密码
-      password: 'admin2020',
+      password: 'admin_pwd@2020',
       // 数据库名
       database: 'admin_demo',
     },
