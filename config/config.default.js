@@ -49,7 +49,7 @@ module.exports = appInfo => {
   config.mysql = {
     client: {
       // host
-      host: 'adminDemodb',
+      host: 'rm-wz96yk7n9ka06t3eh.mysql.rds.aliyuncs.com',
       // 端口号
       port: '3306',
       // 用户名
