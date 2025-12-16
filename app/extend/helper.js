@@ -97,6 +97,7 @@ module.exports = {
       // const filePath = './task' + schedule.job_id + Date.now() + '.sh';
       try {    
         jobHandlerLog.log('由于考虑到服务器安全因素，演示环境禁止执行脚本，后期会考虑实现沙盒环境执行');
+        resolve();
         // 写入文件
         // fs.writeFileSync(filePath, schedule.runSource);
         // 处理用户参数
