@@ -94,41 +94,39 @@ module.exports = {
     return new Promise((resolve, reject) => {
       // 创建脚本临时文件
       // /tmp
-      // const filePath = './task' + schedule.job_id + Date.now() + '.sh';
-      try {    
-        jobHandlerLog.log('由于考虑到服务器安全因素，演示环境禁止执行脚本，后期会考虑实现沙盒环境执行');
-        resolve();
+      const filePath = './task' + schedule.job_id + Date.now() + '.sh';
+      try {
         // 写入文件
-        // fs.writeFileSync(filePath, schedule.runSource);
+        fs.writeFileSync(filePath, schedule.runSource);
         // 处理用户参数
-        // const params = schedule.params ? schedule.params.split(',') : [];
+        const params = schedule.params ? schedule.params.split(',') : [];
         // 执行脚本
-        // const ls = spawn('/bin/bash', [ filePath, ...params ]);
+        const ls = spawn('/bin/bash', [ filePath, ...params ]);
         // 监听输出
-        // ls.stdout.on('data', data => {
-        //   jobHandlerLog.log(data);
-        // });
+        ls.stdout.on('data', data => {
+          jobHandlerLog.log(data);
+        });
 
-        // ls.on('error', data => {
-        //   jobHandlerLog.error(JSON.stringify(data));
-        //   resolve(new Error(data));
-        // });
+        ls.on('error', data => {
+          jobHandlerLog.error(JSON.stringify(data));
+          resolve(new Error(data));
+        });
 
-        // ls.on('close', () => {
-        //   resolve();
-        // });
+        ls.on('close', () => {
+          resolve();
+        });
         // 监听异常
-        // ls.on('exit', code => {
-        //   if (code !== 0) {
-        //     jobHandlerLog.error(code);
-        //     reject(new Error(code));
-        //   }
-        //   resolve();
-        // });
+        ls.on('exit', code => {
+          if (code !== 0) {
+            jobHandlerLog.error(code);
+            reject(new Error(code));
+          }
+          resolve();
+        });
       } catch (err) {
         throw new Error(err);
       } finally {
-        // fs.unlinkSync(filePath);
+        fs.unlinkSync(filePath);
       }
     });
   },
